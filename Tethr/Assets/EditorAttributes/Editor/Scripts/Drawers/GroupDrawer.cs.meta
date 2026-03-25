@@ -1,0 +1,9 @@
+fileFormatVersion: 2
+guid: abb6499f6237e3847b3aa589f7812712
+AssetOrigin:
+  serializedVersion: 1
+  productId: 269285
+  packageName: EditorAttributes
+  packageVersion: 3.0.1
+  assetPath: Assets/EditorAttributes/Editor/Scripts/Drawers/GroupDrawer.cs
+  uploadId: 868548

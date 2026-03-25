@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: 14d391a3b48d17940b32e1a046e5d5d6
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 269285
+  packageName: EditorAttributes
+  packageVersion: 3.0.1
+  assetPath: Assets/EditorAttributes/Editor/Scripts/Drawers/MiscellaneousAttributeDrawers/HidePropertyDrawer.cs
+  uploadId: 868548

@@ -1,0 +1,9 @@
+fileFormatVersion: 2
+guid: 0dbf2442f44e69c42a36cca9ef7306ed
+AssetOrigin:
+  serializedVersion: 1
+  productId: 269285
+  packageName: EditorAttributes
+  packageVersion: 3.0.1
+  assetPath: Assets/EditorAttributes/Editor/Scripts/Drawers/NumericalAttributeDrawers/MinMaxAxisDrawer.cs
+  uploadId: 868548

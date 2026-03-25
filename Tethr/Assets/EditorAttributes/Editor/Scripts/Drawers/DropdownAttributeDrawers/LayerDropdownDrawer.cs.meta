@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: 4d52feae5c06d1044acecd4d7fa6fb9c
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 269285
+  packageName: EditorAttributes
+  packageVersion: 3.0.1
+  assetPath: Assets/EditorAttributes/Editor/Scripts/Drawers/DropdownAttributeDrawers/LayerDropdownDrawer.cs
+  uploadId: 868548

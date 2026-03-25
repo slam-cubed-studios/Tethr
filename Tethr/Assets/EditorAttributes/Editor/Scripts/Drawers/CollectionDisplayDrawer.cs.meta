@@ -1,0 +1,9 @@
+fileFormatVersion: 2
+guid: 5db0b4fecd504a243bf680636865dfa5
+AssetOrigin:
+  serializedVersion: 1
+  productId: 269285
+  packageName: EditorAttributes
+  packageVersion: 3.0.1
+  assetPath: Assets/EditorAttributes/Editor/Scripts/Drawers/CollectionDisplayDrawer.cs
+  uploadId: 868548

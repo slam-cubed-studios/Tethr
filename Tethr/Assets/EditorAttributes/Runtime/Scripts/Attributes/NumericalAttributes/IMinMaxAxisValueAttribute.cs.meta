@@ -1,0 +1,9 @@
+fileFormatVersion: 2
+guid: f8cdcac9e2f8d9e4fbd1ba542a21d224
+AssetOrigin:
+  serializedVersion: 1
+  productId: 269285
+  packageName: EditorAttributes
+  packageVersion: 3.0.1
+  assetPath: Assets/EditorAttributes/Runtime/Scripts/Attributes/NumericalAttributes/IMinMaxAxisValueAttribute.cs
+  uploadId: 868548
