@@ -2,50 +2,71 @@ using UnityEngine;
 
 public static class TransformExtensions
 {
-    public static bool AlignToSurface(this Transform transform, Vector3 direction, float maxDistance = Mathf.Infinity, int layerMask = Physics.AllLayers)
+    public static bool AlignToSurface(this Transform transform, Vector3 direction, float maxDistance = Mathf.Infinity,
+                                      int layerMask = Physics.AllLayers, Vector3 offset = default)
     {
-        if (Physics.Raycast(transform.position, direction, out RaycastHit hit, maxDistance, layerMask))
+        RaycastHit[] hits = Physics.RaycastAll(transform.position, direction, maxDistance, layerMask);
+        foreach (RaycastHit hit in hits)
         {
-            transform.position = hit.point;
-            transform.up = hit.normal;
-            return true;
+            // INFO: Align to the first hit that isn't the object itself or a child of the object
+            if (!hit.transform.IsChildOf(transform))
+            {
+                transform.up = hit.normal;
+
+                // INFO: Assign offset in local space to avoid issues with rotation
+                transform.position = hit.point 
+                                   + transform.right * offset.x 
+                                   + transform.up * offset.y 
+                                   + transform.forward * offset.z;
+                return true;
+            }
         }
+
 #if UNITY_EDITOR
-        else
-        {
-            Debug.LogWarning($"No surface found using the provided layerMask, in the direction {direction}, within a distance of {maxDistance}, for " +
-                             $"{transform.gameObject.name} to align to. Try moving it elsewhere.");
-            return false;
-        }
+        Debug.LogWarning($"No viable surface found for '{transform.gameObject.name}' to align to. " +
+                         $"Try adjusting your direction, maxDistance or layerMask values or moving the object elsewhere.");
+        return false;
 #endif
     }
 
-    public static bool AlignToSurface2D(this Transform transform, Vector2 direction, float maxDistance = Mathf.Infinity, int layerMask = Physics2D.AllLayers)
+    public static bool AlignToSurface2D(this Transform transform, Vector2 direction, float maxDistance = Mathf.Infinity,
+                                        int layerMask = Physics2D.AllLayers, Vector2 offset = default)
     {
-        RaycastHit2D hit = Physics2D.Raycast(transform.position, direction, maxDistance, layerMask);
-        if (hit)
+        RaycastHit2D[] hits = Physics2D.RaycastAll(transform.position, direction, maxDistance, layerMask);
+        foreach (RaycastHit2D hit in hits)
         {
-            transform.position = new Vector3(hit.point.x, hit.point.y, transform.position.z);
-            transform.up = hit.normal;
-            return true;
+            // INFO: Align to the first hit that isn't the object itself or a child of the object
+            if (!hit.transform.IsChildOf(transform))
+            {
+                transform.up = hit.normal;
+
+                Vector3 position = hit.point;
+                position.z = transform.position.z; // INFO: Keep original Z position for 2D alignment
+
+                // INFO: Assign offset in local space to avoid issues with rotation
+                transform.position = position 
+                                   + transform.right * offset.x 
+                                   + transform.up * offset.y;
+                return true;
+            }
         }
+
 #if UNITY_EDITOR
-        else
-        {
-            Debug.LogWarning($"No surface found using the provided layerMask, in the direction {direction}, within a distance of {maxDistance}, for " +
-                             $"{transform.gameObject.name} to align to. Try moving it elsewhere.");
-            return false;
-        }
+        Debug.LogWarning($"No viable surface found for '{transform.gameObject.name}' to align to. " +
+                         $"Try adjusting your direction, maxDistance or layerMask values or moving the object elsewhere.");
+        return false;
 #endif
     }
 
-    public static bool AlignToGround(this Transform transform, float maxDistance = Mathf.Infinity, int layerMask = Physics.AllLayers)
+    public static bool AlignToGround(this Transform transform, float maxDistance = Mathf.Infinity,
+                                     int layerMask = Physics.AllLayers, Vector3 offset = default)
     {
-        return AlignToSurface(transform, Vector3.down, maxDistance, layerMask);
+        return AlignToSurface(transform, Vector3.down, maxDistance, layerMask, offset);
     }
 
-    public static bool AlignToGround2D(this Transform transform, float maxDistance = Mathf.Infinity, int layerMask = Physics2D.AllLayers)
+    public static bool AlignToGround2D(this Transform transform, float maxDistance = Mathf.Infinity,
+                                       int layerMask = Physics2D.AllLayers, Vector2 offset = default)
     {
-        return AlignToSurface2D(transform, Vector2.down, maxDistance, layerMask);
+        return AlignToSurface2D(transform, Vector2.down, maxDistance, layerMask, offset);
     }
 }
