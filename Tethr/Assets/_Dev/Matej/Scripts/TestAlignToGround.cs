@@ -19,8 +19,4 @@ public class TestAlignToGround : MonoBehaviour
             transform.AlignToGround2D(Mathf.Infinity, groundLayer, new Vector2(0.0f, 0.5f));
         }
     }
-    private void Update()
-    {
-        
-    }
 }
