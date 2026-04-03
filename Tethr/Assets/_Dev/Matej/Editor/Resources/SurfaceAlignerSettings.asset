@@ -1,0 +1,38 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2b4bbea3a7f8de641bbf66a9ac7deb6c, type: 3}
+  m_Name: SurfaceAlignerSettings
+  m_EditorClassIdentifier: Assembly-CSharp-Editor::SurfaceAlignerSettings
+  physicsType: 0
+  lineSettings:
+    colour: {r: 0, g: 1, b: 0, a: 1}
+    normalColour: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
+    thickness: 2
+    normalLength: 1
+  discSettings:
+    colour: {r: 0, g: 1, b: 0, a: 1}
+    radius: 0.075
+  surfaceChecks:
+  - prefab: {fileID: 2167544432848468494, guid: 6d205668daf88cd4c87ac6971ef6fe60, type: 3}
+    direction: {x: 0, y: -1, z: 0}
+    maxDistance: Infinity
+    layerMask:
+      serializedVersion: 2
+      m_Bits: 8
+    offset: {x: 0, y: 0.5, z: 0}
+  - prefab: {fileID: 8821236486896784764, guid: 23d5fc7d1e490424c9df1fa2cb1df1bd, type: 3}
+    direction: {x: 0, y: -1, z: 0}
+    maxDistance: Infinity
+    layerMask:
+      serializedVersion: 2
+      m_Bits: 8
+    offset: {x: 0, y: 0, z: 0}
