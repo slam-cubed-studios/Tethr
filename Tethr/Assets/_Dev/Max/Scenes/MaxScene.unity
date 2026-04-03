@@ -629,7 +629,7 @@ DistanceJoint2D:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 481443254}
-  m_Enabled: 0
+  m_Enabled: 1
   serializedVersion: 4
   m_EnableCollision: 1
   m_ConnectedRigidBody: {fileID: 0}
@@ -639,8 +639,8 @@ DistanceJoint2D:
   m_AutoConfigureConnectedAnchor: 0
   m_Anchor: {x: 0, y: 0}
   m_ConnectedAnchor: {x: -2.8508916, y: 2.7838588}
-  m_AutoConfigureDistance: 0
-  m_Distance: 1.514003
+  m_AutoConfigureDistance: 1
+  m_Distance: 4.146989
   m_MaxDistanceOnly: 1
 --- !u!114 &481443261
 MonoBehaviour:
@@ -654,8 +654,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c1c3de093c7436347a491c4ff426f8bd, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Grapple
-  grappleStrength: 0
-  ropeObj: {fileID: 294951760}
+  grappleStrength: 4
+  fireGrappleDistance: 100
+  minDistanceBetweenPoints: 0.1
+  ropePrefab: {fileID: 294951760}
 --- !u!231 &481443262
 SpringJoint2D:
   m_ObjectHideFlags: 0
@@ -663,7 +665,7 @@ SpringJoint2D:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 481443254}
-  m_Enabled: 1
+  m_Enabled: 0
   serializedVersion: 4
   m_EnableCollision: 1
   m_ConnectedRigidBody: {fileID: 0}
@@ -1563,7 +1565,7 @@ Transform:
   m_GameObject: {fileID: 1500402837}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 1.92, z: 0}
+  m_LocalPosition: {x: 0, y: 1.92, z: 1}
   m_LocalScale: {x: 3.256249, y: 3.256249, z: 3.256249}
   m_ConstrainProportionsScale: 0
   m_Children: []
