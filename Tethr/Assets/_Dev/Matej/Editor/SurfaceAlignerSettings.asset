@@ -11,10 +11,10 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 2b4bbea3a7f8de641bbf66a9ac7deb6c, type: 3}
   m_Name: SurfaceAlignerSettings
-  m_EditorClassIdentifier: Assembly-CSharp-Editor::SurfaceAlignerSettings
+  m_EditorClassIdentifier: Assembly-CSharp-Editor::Tethr.SurfaceAligner.SurfaceAlignerSettings
   physicsType: 0
   lineSettings:
-    colour: {r: 0, g: 1, b: 0, a: 1}
+    rayColour: {r: 0, g: 1, b: 0, a: 1}
     normalColour: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
     thickness: 2
     normalLength: 1
@@ -35,4 +35,4 @@ MonoBehaviour:
     layerMask:
       serializedVersion: 2
       m_Bits: 8
-    offset: {x: 0, y: 0, z: 0}
+    offset: {x: 0, y: 0.5, z: 0}
