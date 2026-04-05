@@ -82,11 +82,13 @@ namespace Tethr.SurfaceAligner
 
         public void OnAfterDeserialize()
         {
+            // INFO: Ensure direction is always normalized
             if (direction != Vector3.zero)
             {
                 direction = direction.normalized;
             }
 
+            // INFO: Ensure maxDistance is never below or equal to 0
             if (maxDistance <= 0.0f)
             {
                 maxDistance = Mathf.Infinity;

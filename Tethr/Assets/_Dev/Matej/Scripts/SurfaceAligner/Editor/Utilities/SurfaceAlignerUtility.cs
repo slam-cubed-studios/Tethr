@@ -26,7 +26,7 @@ namespace Tethr.SurfaceAligner
 
         private static void InitialiseUtility()
         {
-            settings = SurfaceAlignerSettings.Get();
+            SetSettings(SurfaceAlignerSettings.Get());
             selectedTransforms = new List<Transform>(Selection.transforms);
             isDragging = false;
 
