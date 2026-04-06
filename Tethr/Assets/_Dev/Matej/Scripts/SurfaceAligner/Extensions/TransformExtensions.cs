@@ -1,3 +1,5 @@
+// Copyright (c) 2026, TheMGLegends. All rights reserved.
+
 using UnityEngine;
 
 namespace Tethr.SurfaceAligner
