@@ -26,7 +26,7 @@ namespace Tethr.SurfaceAligner
         {
             EditorApplication.delayCall += static () =>
             {
-                InitialiseUtility();
+                Initialise();
             };
         }
 
@@ -35,7 +35,7 @@ namespace Tethr.SurfaceAligner
             SurfaceAlignerUtility.settings = settings;
         }
 
-        private static void InitialiseUtility()
+        private static void Initialise()
         {
             SetSettings(SurfaceAlignerSettings.GetOrCreateSettings());
             selectedGameObjects = new List<GameObject>(Selection.gameObjects);
@@ -57,7 +57,7 @@ namespace Tethr.SurfaceAligner
             EditorApplication.playModeStateChanged += OnPlayModeStateChanged;
             EditorApplication.delayCall -= static () =>
             {
-                InitialiseUtility();
+                Initialise();
             };
 
             isDragging = false;
@@ -70,7 +70,7 @@ namespace Tethr.SurfaceAligner
         {
             if (state == PlayModeStateChange.EnteredEditMode)
             {
-                InitialiseUtility();
+                Initialise();
             }
         }
 

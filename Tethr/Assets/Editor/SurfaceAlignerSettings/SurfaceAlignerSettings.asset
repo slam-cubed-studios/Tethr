@@ -21,11 +21,4 @@ MonoBehaviour:
   discSettings:
     colour: {r: 0, g: 1, b: 0, a: 1}
     radius: 0.075
-  surfaceChecks:
-  - prefab: {fileID: 2167544432848468494, guid: 6d205668daf88cd4c87ac6971ef6fe60, type: 3}
-    direction: {x: 0, y: -1, z: 0}
-    maxDistance: Infinity
-    layerMask:
-      serializedVersion: 2
-      m_Bits: 8
-    offset: {x: 0, y: 0.5, z: 0}
+  surfaceChecks: []

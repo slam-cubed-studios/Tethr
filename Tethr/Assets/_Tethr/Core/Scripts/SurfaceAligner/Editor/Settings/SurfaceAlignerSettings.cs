@@ -112,7 +112,7 @@ namespace Tethr.SurfaceAligner
     public class SurfaceAlignerSettings : ScriptableObject
     {
         private const string ASSET_NAME = "SurfaceAlignerSettings";
-        private const string FOLDER_PATH = "Assets/_Dev/Matej/Editor/"; // TODO: Change Path once Integrated
+        private const string FOLDER_PATH = "Assets/Editor/SurfaceAlignerSettings/";
         private const string ASSET_PATH = FOLDER_PATH + ASSET_NAME + ".asset";
 
         [Header("General Settings")]
