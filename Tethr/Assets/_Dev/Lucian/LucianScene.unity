@@ -130,6 +130,7 @@ GameObject:
   - component: {fileID: 179413866}
   - component: {fileID: 179413868}
   - component: {fileID: 179413867}
+  - component: {fileID: 179413869}
   m_Layer: 5
   m_Name: TimerText
   m_TagString: Untagged
@@ -256,6 +257,19 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 179413865}
   m_CullTransparentMesh: 1
+--- !u!114 &179413869
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 179413865}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 31d79355753ebab4587c2cf281e243dd, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::UITimerSubscriber
+  timeText: {fileID: 179413867}
 --- !u!1 &468764568
 GameObject:
   m_ObjectHideFlags: 0
@@ -344,7 +358,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 647769524}
-  - component: {fileID: 647769523}
+  - component: {fileID: 647769525}
   m_Layer: 0
   m_Name: Controller
   m_TagString: Untagged
@@ -352,20 +366,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &647769523
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 647769522}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 384737333ce48244ba8b682f98636bf2, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::TimerController
-  timeCounter: {fileID: 179413867}
-  isPaused: 0
 --- !u!4 &647769524
 Transform:
   m_ObjectHideFlags: 0
@@ -381,6 +381,19 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &647769525
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 647769522}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 384737333ce48244ba8b682f98636bf2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::TimerController
+  isPaused: 0
 --- !u!1 &1166178145
 GameObject:
   m_ObjectHideFlags: 0
