@@ -29,10 +29,3 @@ MonoBehaviour:
       serializedVersion: 2
       m_Bits: 8
     offset: {x: 0, y: 0.5, z: 0}
-  - prefab: {fileID: 8821236486896784764, guid: 23d5fc7d1e490424c9df1fa2cb1df1bd, type: 3}
-    direction: {x: 0, y: -1, z: 0}
-    maxDistance: Infinity
-    layerMask:
-      serializedVersion: 2
-      m_Bits: 8
-    offset: {x: 0, y: 0.5, z: 0}

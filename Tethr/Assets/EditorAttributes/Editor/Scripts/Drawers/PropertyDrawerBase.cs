@@ -208,6 +208,29 @@ namespace EditorAttributes.Editor
         protected bool IsPropertyEnumFlag() => fieldInfo.FieldType.IsDefined(typeof(FlagsAttribute), false);
 
         /// <summary>
+        /// Get the element index of the property in a collection
+        /// </summary>
+        /// <param name="property">The serialized property</param>
+        /// <returns>The index of the property if in an collection, else -1</returns>
+        public static int GetCollectionElementIndex(SerializedProperty property)
+        {
+            string path = property.propertyPath;
+
+            int start = path.LastIndexOf('[');
+            int end = path.LastIndexOf(']');
+
+            if (start != -1 && end != -1)
+            {
+                string indexString = path.Substring(start + 1, end - start - 1);
+
+                if (int.TryParse(indexString, out int index))
+                    return index;
+            }
+
+            return -1;
+        }
+
+        /// <summary>
         /// Gets the value of a condition for a conditional attribute
         /// </summary>
         /// <param name="memberInfo">The member info of the condition</param>
@@ -420,7 +443,11 @@ namespace EditorAttributes.Editor
             _ => clipboardValue
         };
 
+#if UNITY_6000_4_OR_NEWER
+        private protected string CreatePropertySaveKey(SerializedProperty property, string key) => $"{property.serializedObject.targetObject.GetEntityId()}_{property.propertyPath}_{key}";
+#else
         private protected string CreatePropertySaveKey(SerializedProperty property, string key) => $"{property.serializedObject.targetObject.GetInstanceID()}_{property.propertyPath}_{key}";
+#endif
 
         /// <summary>
         /// Invokes a function on all specified targets

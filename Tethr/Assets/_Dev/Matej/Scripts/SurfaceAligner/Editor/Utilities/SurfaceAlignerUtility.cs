@@ -18,29 +18,34 @@ namespace Tethr.SurfaceAligner
     public static class SurfaceAlignerUtility
     {
         private static SurfaceAlignerSettings settings;
-        private static List<Transform> selectedTransforms;
-        private static bool isDragging;
+        private static List<GameObject> selectedGameObjects;
+        private static Dictionary<GameObject, SurfaceCheck> selectedSurfaceChecks;
+        private static bool isDragging = false;
 
         static SurfaceAlignerUtility()
         {
-            InitialiseUtility();
+            EditorApplication.delayCall += static () =>
+            {
+                InitialiseUtility();
+            };
+        }
+
+        public static void SetSettings(SurfaceAlignerSettings settings)
+        {
+            SurfaceAlignerUtility.settings = settings;
         }
 
         private static void InitialiseUtility()
         {
-            SetSettings(SurfaceAlignerSettings.Get());
-            selectedTransforms = new List<Transform>(Selection.transforms);
+            SetSettings(SurfaceAlignerSettings.GetOrCreateSettings());
+            selectedGameObjects = new List<GameObject>(Selection.gameObjects);
+            selectedSurfaceChecks = settings.GetSurfaceChecks(selectedGameObjects);
             isDragging = false;
 
             EditorApplication.playModeStateChanged -= OnPlayModeStateChanged;
             EditorApplication.playModeStateChanged += OnPlayModeStateChanged;
             Selection.selectionChanged += OnSelectionChanged;
             SceneView.duringSceneGui += DuringSceneGUI;
-        }
-
-        public static void SetSettings(SurfaceAlignerSettings settings)
-        {
-            SurfaceAlignerUtility.settings = settings;
         }
 
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
@@ -50,9 +55,14 @@ namespace Tethr.SurfaceAligner
             Selection.selectionChanged -= OnSelectionChanged;
             EditorApplication.playModeStateChanged -= OnPlayModeStateChanged;
             EditorApplication.playModeStateChanged += OnPlayModeStateChanged;
+            EditorApplication.delayCall -= static () =>
+            {
+                InitialiseUtility();
+            };
 
             isDragging = false;
-            selectedTransforms = null;
+            selectedSurfaceChecks = null;
+            selectedGameObjects = null;
             settings = null;
         }
 
@@ -66,16 +76,24 @@ namespace Tethr.SurfaceAligner
 
         private static void OnSelectionChanged()
         {
-            UpdateSelectedTransforms();
+            UpdateSelectedGameObjects();
         }
 
-        private static void UpdateSelectedTransforms()
+        private static void UpdateSelectedGameObjects()
         {
-            selectedTransforms = new List<Transform>(Selection.transforms);
+            selectedGameObjects = new List<GameObject>(Selection.gameObjects);
+
+            // INFO: Update surface checks for new selection
+            selectedSurfaceChecks = settings.GetSurfaceChecks(selectedGameObjects);
         }
 
         private static void DuringSceneGUI(SceneView sceneView)
         {
+            if (settings == null)
+            {
+                return;
+            }
+
             Event currentEvent = Event.current;
 
             if (!IsDragging(currentEvent))
@@ -83,42 +101,81 @@ namespace Tethr.SurfaceAligner
                 return;
             }
 
-            Dictionary<GameObject, SurfaceCheck> surfaceChecks = settings.GetSurfaceChecks(selectedTransforms);
+            DrawUtilityVisuals();
 
-            DrawUtilityVisuals(surfaceChecks);
-            AlignSelectedToSurfaces(surfaceChecks, currentEvent);
-        }
-
-        private static bool IsDragging(Event currentEvent)
-        {
-            // INFO: Start drag operation on left mouse button down
-            if (currentEvent.type == EventType.MouseDrag && currentEvent.button == (int)MouseButton.Left && !isDragging)
+            if (!IsLeftMouseButtonReleased(currentEvent))
             {
-                isDragging = true;
+                return;
             }
 
-            return isDragging;
+            AlignSelectedToSurfaces();
         }
 
-        private static void DrawUtilityVisuals(Dictionary<GameObject, SurfaceCheck> surfaceChecks)
+        private static void AlignSelectedToSurfaces()
         {
-            foreach (Transform selectedTransform in selectedTransforms)
+            PhysicsType physicsType = settings.GetPhysicsType();
+
+            foreach (GameObject selectedGameObject in selectedGameObjects)
             {
-                if (selectedTransform == null)
+                if (selectedGameObject == null)
                 {
                     continue;
                 }
 
-                GameObject selectedObject = selectedTransform.gameObject;
-
                 // INFO: Get surface check for this object, if it exists
-                surfaceChecks.TryGetValue(selectedObject, out SurfaceCheck surfaceCheck);
+                selectedSurfaceChecks.TryGetValue(selectedGameObject, out SurfaceCheck surfaceCheck);
                 if (surfaceCheck == null)
                 {
                     continue;
                 }
 
-                switch (settings.GetPhysicsType())
+                Transform selectedTransform = selectedGameObject.transform;
+
+                Undo.RecordObject(selectedTransform, "Align To Surface");
+
+                switch (physicsType)
+                {
+                    case PhysicsType.Physics3D:
+                        {
+                            selectedTransform.AlignToSurface(surfaceCheck.direction, surfaceCheck.maxDistance,
+                                                             surfaceCheck.layerMask, surfaceCheck.offset);
+                            break;
+                        }
+                    case PhysicsType.Physics2D:
+                        {
+                            selectedTransform.AlignToSurface2D(surfaceCheck.direction, surfaceCheck.maxDistance,
+                                                               surfaceCheck.layerMask, surfaceCheck.offset);
+                            break;
+                        }
+                    default:
+                        break;
+                }
+            }
+
+            Undo.SetCurrentGroupName("Align To Surface");
+        }
+
+        private static void DrawUtilityVisuals()
+        {
+            PhysicsType physicsType = settings.GetPhysicsType();
+
+            foreach (GameObject selectedGameObject in selectedGameObjects)
+            {
+                if (selectedGameObject == null)
+                {
+                    continue;
+                }
+
+                // INFO: Get surface check for this object, if it exists
+                selectedSurfaceChecks.TryGetValue(selectedGameObject, out SurfaceCheck surfaceCheck);
+                if (surfaceCheck == null)
+                {
+                    continue;
+                }
+
+                Transform selectedTransform = selectedGameObject.transform;
+
+                switch (physicsType)
                 {
                     case PhysicsType.Physics3D:
                         {
@@ -168,51 +225,21 @@ namespace Tethr.SurfaceAligner
             Handles.DrawSolidDisc(hitPoint, physicsType == PhysicsType.Physics3D ? hitNormal : Vector3.forward, discSettings.radius);
         }
 
-        private static void AlignSelectedToSurfaces(Dictionary<GameObject, SurfaceCheck> surfaceChecks, Event currentEvent)
+        private static bool IsDragging(Event currentEvent)
         {
-            if (!IsLeftMouseButtonReleased(currentEvent))
+            // INFO: Only allow dragging if the current tool is Move
+            if (Tools.current != Tool.Move)
             {
-                return;
+                return false;
             }
 
-            foreach (Transform selectedTransform in selectedTransforms)
+            // INFO: Start drag operation on left mouse button down
+            if (currentEvent.type == EventType.MouseDrag && currentEvent.button == (int)MouseButton.Left && !isDragging)
             {
-                if (selectedTransform == null)
-                {
-                    continue;
-                }
-
-                GameObject selectedObject = selectedTransform.gameObject;
-
-                // INFO: Get surface check for this object, if it exists
-                surfaceChecks.TryGetValue(selectedObject, out SurfaceCheck surfaceCheck);
-                if (surfaceCheck == null)
-                {
-                    continue;
-                }
-
-                Undo.RecordObject(selectedTransform, "Align To Surface");
-
-                switch (settings.GetPhysicsType())
-                {
-                    case PhysicsType.Physics3D:
-                        {
-                            selectedTransform.AlignToSurface(surfaceCheck.direction, surfaceCheck.maxDistance, 
-                                                             surfaceCheck.layerMask, surfaceCheck.offset);
-                            break;
-                        }
-                    case PhysicsType.Physics2D:
-                        {
-                            selectedTransform.AlignToSurface2D(surfaceCheck.direction, surfaceCheck.maxDistance, 
-                                                               surfaceCheck.layerMask, surfaceCheck.offset);
-                            break;
-                        }
-                    default:
-                        break;
-                }
+                isDragging = true;
             }
 
-            Undo.SetCurrentGroupName("Align To Surface");
+            return isDragging;
         }
 
         private static bool IsLeftMouseButtonReleased(Event currentEvent)

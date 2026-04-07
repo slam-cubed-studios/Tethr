@@ -132,41 +132,37 @@ namespace Tethr.SurfaceAligner
             RebuildSurfaceChecksDictionary();
         }
 
-        public PhysicsType GetPhysicsType()
+        public static SurfaceAlignerSettings GetOrCreateSettings()
         {
-            return physicsType;
+            SurfaceAlignerSettings settings = AssetDatabase.LoadAssetAtPath<SurfaceAlignerSettings>(ASSET_PATH);
+            if (settings == null)
+            {
+                settings = CreateInstance<SurfaceAlignerSettings>();
+                CreateFolderStructure();
+                AssetDatabase.CreateAsset(settings, ASSET_PATH);
+                AssetDatabase.SaveAssets();
+
+                // INFO: Ensure SurfaceAlignerUtility has reference to settings when created for the first time
+                SurfaceAlignerUtility.SetSettings(settings);
+            }
+
+            return settings;
         }
 
-        public LineSettings GetLineSettings()
-        {
-            // INFO: Ensure lineSettings is never null
-            lineSettings ??= new LineSettings();
-            return lineSettings;
-        }
-
-        public DiscSettings GetDiscSettings()
-        {
-            // INFO: Ensure discSettings is never null
-            discSettings ??= new DiscSettings();
-            return discSettings;
-        }
-
-        public Dictionary<GameObject, SurfaceCheck> GetSurfaceChecks(List<Transform> transforms)
+        public Dictionary<GameObject, SurfaceCheck> GetSurfaceChecks(List<GameObject> gameObjects)
         {
             Dictionary<GameObject, SurfaceCheck> checksForGameObjects = new();
-            foreach (Transform transform in transforms)
+            foreach (GameObject gameObject in gameObjects)
             {
-                if (transform == null)
+                if (gameObject == null)
                 {
                     continue;
                 }
 
-                GameObject transformObject = transform.gameObject;
-
-                SurfaceCheck surfaceCheck = TryGetSurfaceCheck(transformObject);
+                SurfaceCheck surfaceCheck = TryGetSurfaceCheck(gameObject);
                 if (surfaceCheck != null)
                 {
-                    checksForGameObjects.TryAdd(transformObject, surfaceCheck);
+                    checksForGameObjects.TryAdd(gameObject, surfaceCheck);
                 }
             }
 
@@ -189,9 +185,23 @@ namespace Tethr.SurfaceAligner
             return null;
         }
 
-        public static SurfaceAlignerSettings Get()
+        public PhysicsType GetPhysicsType()
         {
-            return AssetDatabase.LoadAssetAtPath<SurfaceAlignerSettings>(ASSET_PATH);
+            return physicsType;
+        }
+
+        public LineSettings GetLineSettings()
+        {
+            // INFO: Ensure lineSettings is never null
+            lineSettings ??= new LineSettings();
+            return lineSettings;
+        }
+
+        public DiscSettings GetDiscSettings()
+        {
+            // INFO: Ensure discSettings is never null
+            discSettings ??= new DiscSettings();
+            return discSettings;
         }
 
         private void RebuildSurfaceChecksDictionary()
@@ -204,23 +214,6 @@ namespace Tethr.SurfaceAligner
                     surfaceChecksDictionary.TryAdd(surfaceCheck.prefab, surfaceCheck);
                 }
             }
-        }
-
-        internal static SurfaceAlignerSettings GetOrCreateSettings()
-        {
-            SurfaceAlignerSettings settings = AssetDatabase.LoadAssetAtPath<SurfaceAlignerSettings>(ASSET_PATH);
-            if (settings == null)
-            {
-                settings = CreateInstance<SurfaceAlignerSettings>();
-                CreateFolderStructure();
-                AssetDatabase.CreateAsset(settings, ASSET_PATH);
-                AssetDatabase.SaveAssets();
-
-                // INFO: Ensure SurfaceAlignerUtility has reference to settings when created for the first time
-                SurfaceAlignerUtility.SetSettings(settings);
-            }
-
-            return settings;
         }
 
         internal static void CreateFolderStructure()

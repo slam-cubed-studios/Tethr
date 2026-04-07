@@ -23,7 +23,7 @@ namespace Tethr.SurfaceAligner
                     EditorGUILayout.PropertyField(serializedObject.FindProperty("lineSettings"), new GUIContent("Line Settings"));
                     EditorGUILayout.PropertyField(serializedObject.FindProperty("discSettings"), new GUIContent("Disc Settings"));
                     EditorGUILayout.PropertyField(serializedObject.FindProperty("surfaceChecks"), new GUIContent("Surface Checks"));
-                    serializedObject.ApplyModifiedProperties();
+                    serializedObject.ApplyModifiedPropertiesWithoutUndo();
                 },
                 keywords = new System.Collections.Generic.HashSet<string>(new[] { "Surface", "Physics Type" })
             };

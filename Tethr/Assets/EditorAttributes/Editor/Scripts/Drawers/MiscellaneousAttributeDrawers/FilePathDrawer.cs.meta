@@ -13,6 +13,6 @@ AssetOrigin:
   serializedVersion: 1
   productId: 269285
   packageName: EditorAttributes
-  packageVersion: 3.0.1
+  packageVersion: 3.0.2
   assetPath: Assets/EditorAttributes/Editor/Scripts/Drawers/MiscellaneousAttributeDrawers/FilePathDrawer.cs
-  uploadId: 868548
+  uploadId: 890538
