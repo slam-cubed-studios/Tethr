@@ -18,6 +18,19 @@ namespace Tethr.SurfaceAligner
     public static class SurfaceAlignerUtility
     {
         private static SurfaceAlignerSettings settings;
+        private static SurfaceAlignerSettings Settings
+        {
+            get
+            {
+                if (settings == null)
+                {
+                    settings = SurfaceAlignerSettings.GetOrCreateSettings();
+                }
+
+                return settings;
+            }
+        }
+
         private static List<GameObject> selectedGameObjects;
         private static Dictionary<GameObject, SurfaceCheck> selectedSurfaceChecks;
         private static bool isDragging = false;
@@ -30,16 +43,10 @@ namespace Tethr.SurfaceAligner
             };
         }
 
-        public static void SetSettings(SurfaceAlignerSettings settings)
-        {
-            SurfaceAlignerUtility.settings = settings;
-        }
-
         private static void Initialise()
         {
-            SetSettings(SurfaceAlignerSettings.GetOrCreateSettings());
             selectedGameObjects = new List<GameObject>(Selection.gameObjects);
-            selectedSurfaceChecks = settings.GetSurfaceChecks(selectedGameObjects);
+            selectedSurfaceChecks = Settings.GetSurfaceChecks(selectedGameObjects);
             isDragging = false;
 
             EditorApplication.playModeStateChanged -= OnPlayModeStateChanged;
@@ -84,16 +91,11 @@ namespace Tethr.SurfaceAligner
             selectedGameObjects = new List<GameObject>(Selection.gameObjects);
 
             // INFO: Update surface checks for new selection
-            selectedSurfaceChecks = settings.GetSurfaceChecks(selectedGameObjects);
+            selectedSurfaceChecks = Settings.GetSurfaceChecks(selectedGameObjects);
         }
 
         private static void DuringSceneGUI(SceneView sceneView)
         {
-            if (settings == null)
-            {
-                return;
-            }
-
             Event currentEvent = Event.current;
 
             if (!IsDragging(currentEvent))
@@ -113,7 +115,7 @@ namespace Tethr.SurfaceAligner
 
         private static void AlignSelectedToSurfaces()
         {
-            PhysicsType physicsType = settings.GetPhysicsType();
+            PhysicsType physicsType = Settings.GetPhysicsType();
 
             foreach (GameObject selectedGameObject in selectedGameObjects)
             {
@@ -157,7 +159,7 @@ namespace Tethr.SurfaceAligner
 
         private static void DrawUtilityVisuals()
         {
-            PhysicsType physicsType = settings.GetPhysicsType();
+            PhysicsType physicsType = Settings.GetPhysicsType();
 
             foreach (GameObject selectedGameObject in selectedGameObjects)
             {
@@ -205,9 +207,9 @@ namespace Tethr.SurfaceAligner
 
         private static void DrawSurfaceHitGizmos(Transform transform, SurfaceCheck surfaceCheck, Vector3 hitPoint, Vector3 hitNormal)
         {
-            PhysicsType physicsType = settings.GetPhysicsType();
-            LineSettings lineSettings = settings.GetLineSettings();
-            DiscSettings discSettings = settings.GetDiscSettings();
+            PhysicsType physicsType = Settings.GetPhysicsType();
+            LineSettings lineSettings = Settings.GetLineSettings();
+            DiscSettings discSettings = Settings.GetDiscSettings();
 
             // INFO: Draw ray from object to hit point
             Handles.color = lineSettings.rayColour;

@@ -25,7 +25,7 @@ namespace Tethr.SurfaceAligner
                     EditorGUILayout.PropertyField(serializedObject.FindProperty("surfaceChecks"), new GUIContent("Surface Checks"));
                     serializedObject.ApplyModifiedPropertiesWithoutUndo();
                 },
-                keywords = new System.Collections.Generic.HashSet<string>(new[] { "Surface", "Physics Type" })
+                keywords = new System.Collections.Generic.HashSet<string>(new[] { "Surface", "Aligner" })
             };
         }
     }

@@ -141,9 +141,6 @@ namespace Tethr.SurfaceAligner
                 CreateFolderStructure();
                 AssetDatabase.CreateAsset(settings, ASSET_PATH);
                 AssetDatabase.SaveAssets();
-
-                // INFO: Ensure SurfaceAlignerUtility has reference to settings when created for the first time
-                SurfaceAlignerUtility.SetSettings(settings);
             }
 
             return settings;
