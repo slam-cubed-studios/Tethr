@@ -1,8 +1,10 @@
 // Copyright (c) 2026, TheMGLegends. All rights reserved.
 
-using EditorAttributes;
 using UnityEngine;
 using System.Collections.Generic;
+
+#if UNITY_EDITOR
+using EditorAttributes;
 
 namespace Tethr.PathVisualiser.Examples
 {
@@ -151,3 +153,4 @@ namespace Tethr.PathVisualiser.Examples
         }
     }
 }
+#endif

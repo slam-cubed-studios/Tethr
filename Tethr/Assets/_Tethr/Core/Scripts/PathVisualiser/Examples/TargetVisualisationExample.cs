@@ -2,6 +2,7 @@
 
 using UnityEngine;
 
+#if UNITY_EDITOR
 namespace Tethr.PathVisualiser.Examples
 {
     /// <summary>
@@ -24,3 +25,4 @@ namespace Tethr.PathVisualiser.Examples
         }
     }
 }
+#endif
