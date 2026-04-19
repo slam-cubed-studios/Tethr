@@ -63,7 +63,7 @@ namespace Tethr.PathVisualiser
     public class PathVisualiserSettings : ScriptableObject
     {
         private const string ASSET_NAME = "PathVisualiserSettings";
-        private const string FOLDER_PATH = "Assets/_Dev/Matej/Editor/PathVisualiserSettings/"; // TODO: Change once integrated into Tethr project
+        private const string FOLDER_PATH = "Assets/Editor/PathVisualiserSettings/";
         private const string ASSET_PATH = FOLDER_PATH + ASSET_NAME + ".asset";
 
         [Header("General Settings")]
