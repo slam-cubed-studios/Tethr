@@ -1,14 +1,17 @@
-#if UNITY_EDITOR
-using UnityEditor;
-#endif
+// Copyright (c) 2026, TheMGLegends. All rights reserved.
 
 using UnityEngine;
 
+#if UNITY_EDITOR
+using UnityEditor;
+
 namespace Tethr.PathVisualiser
 {
+    /// <summary>
+    /// Provides a settings provider for configuring Path Visualiser preferences in the Unity Editor.
+    /// </summary>
     public class PathVisualiserSettingsProvider
     {
-#if UNITY_EDITOR
         [SettingsProvider]
         public static SettingsProvider CreatePathVisualiserSettingsProvider()
         {
@@ -26,6 +29,6 @@ namespace Tethr.PathVisualiser
                 keywords = new System.Collections.Generic.HashSet<string>(new[] { "Path", "Visualiser" })
             };
         }
-#endif
     }
 }
+#endif

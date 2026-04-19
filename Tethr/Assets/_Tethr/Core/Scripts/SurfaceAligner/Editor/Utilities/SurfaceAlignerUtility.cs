@@ -18,6 +18,10 @@ namespace Tethr.SurfaceAligner
     public static class SurfaceAlignerUtility
     {
         private static SurfaceAlignerSettings settings;
+        private static List<GameObject> selectedGameObjects;
+        private static Dictionary<GameObject, SurfaceCheck> selectedSurfaceChecks;
+        private static bool isDragging = false;
+
         private static SurfaceAlignerSettings Settings
         {
             get
@@ -30,10 +34,6 @@ namespace Tethr.SurfaceAligner
                 return settings;
             }
         }
-
-        private static List<GameObject> selectedGameObjects;
-        private static Dictionary<GameObject, SurfaceCheck> selectedSurfaceChecks;
-        private static bool isDragging = false;
 
         static SurfaceAlignerUtility()
         {

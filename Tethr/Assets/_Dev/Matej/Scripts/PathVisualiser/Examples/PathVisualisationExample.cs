@@ -1,34 +1,45 @@
+// Copyright (c) 2026, TheMGLegends. All rights reserved.
+
 using EditorAttributes;
 using UnityEngine;
 using System.Collections.Generic;
 
 namespace Tethr.PathVisualiser.Examples
 {
+    /// <summary>
+    /// Demonstrates path traversal and visualisation in the Unity Editor using different traversal modes.
+    /// </summary>
+    /// 
+    /// <remarks>
+    /// Supports Once, Loop, and PingPong traversal types. Visualises the path and current traversal
+    /// state in the editor. Intended for use as an example or reference implementation.
+    /// </remarks>
     [ExecuteInEditMode]
     public class PathVisualisationExample : MonoBehaviour
     {
-        [SerializeField] private PathTraversalType traversalType = PathTraversalType.Linear;
+        [SerializeField] private PathTraversalType traversalType = PathTraversalType.Once;
+
+        [Tooltip("Time in seconds between each traversal step.")]
         [SerializeField] private float delayTime = 1.0f;
 
         [Space(10.0f)]
 
-        [SerializeField]
-        private List<Vector3> path = new()
-    {
-        new Vector3(0, 0, 0),
-        new Vector3(5, 0, 0),
-        new Vector3(5, 5, 0),
-        new Vector3(10, 5, 0),
-        new Vector3(10, 15, 0)
-    };
+        [SerializeField] private List<Vector3> path = new()
+        {
+            new Vector3(0, 0, 0),
+            new Vector3(5, 0, 0),
+            new Vector3(5, 5, 0),
+            new Vector3(10, 5, 0),
+            new Vector3(10, 15, 0)
+        };
 
-        [Button] public void ResetPathTraversal() => ResetLogic();
+        [Button("Reverse Path")] public void ReversePathButton() => ReversePath();
+
+        [Button("Reset Traversal")] public void ResetTraversalButton() => ResetLogic();
 
         private int currentPointIndex = 0;
         private int nextPointIndex = 1;
-
         private float timer = 0.0f;
-
         private bool hasFinishedLinearTraversal = false;
         private bool isReversing = false;
 
@@ -47,7 +58,7 @@ namespace Tethr.PathVisualiser.Examples
 
                 switch (traversalType)
                 {
-                    case PathTraversalType.Linear:
+                    case PathTraversalType.Once:
                         LinearLogic();
                         break;
                     case PathTraversalType.Loop:
@@ -67,6 +78,12 @@ namespace Tethr.PathVisualiser.Examples
             timer = 0.0f;
             hasFinishedLinearTraversal = false;
             isReversing = false;
+        }
+
+        private void ReversePath()
+        {
+            path.Reverse();
+            ResetLogic();
         }
 
         private void LinearLogic()

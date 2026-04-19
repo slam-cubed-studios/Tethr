@@ -138,7 +138,7 @@ namespace Tethr.SurfaceAligner
             if (settings == null)
             {
                 settings = CreateInstance<SurfaceAlignerSettings>();
-                CreateFolderStructure();
+                TryCreateDirectory();
                 AssetDatabase.CreateAsset(settings, ASSET_PATH);
                 AssetDatabase.SaveAssets();
             }
@@ -190,15 +190,13 @@ namespace Tethr.SurfaceAligner
         public LineSettings GetLineSettings()
         {
             // INFO: Ensure lineSettings is never null
-            lineSettings ??= new LineSettings();
-            return lineSettings;
+            return lineSettings ??= new LineSettings();
         }
 
         public DiscSettings GetDiscSettings()
         {
             // INFO: Ensure discSettings is never null
-            discSettings ??= new DiscSettings();
-            return discSettings;
+            return discSettings ??= new DiscSettings();
         }
 
         private void RebuildSurfaceChecksDictionary()
@@ -213,7 +211,7 @@ namespace Tethr.SurfaceAligner
             }
         }
 
-        internal static void CreateFolderStructure()
+        private static void TryCreateDirectory()
         {
             if (!Directory.Exists(FOLDER_PATH))
             {
