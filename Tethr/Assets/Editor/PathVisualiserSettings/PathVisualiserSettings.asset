@@ -15,7 +15,7 @@ MonoBehaviour:
   lineSettings:
     defaultColour: {r: 1, g: 0, b: 0, a: 1}
     activeColour: {r: 0, g: 1, b: 0, a: 1}
-    thickness: 10
+    thickness: 15
   discSettings:
     colour: {r: 1, g: 1, b: 1, a: 1}
     radius: 0.5
