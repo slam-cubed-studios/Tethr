@@ -30,6 +30,7 @@ namespace Tethr.PathVisualiser
     {
         private static PathVisualiserSettings settings;
         private static GUIStyle labelStyle;
+        private const float MAX_WORLD_SCALE_MULTIPLIER = 2.5f;
 
         private static PathVisualiserSettings Settings
         {
@@ -88,17 +89,17 @@ namespace Tethr.PathVisualiser
         /// </summary>
         /// <param name="path">The array of Vector3 points representing the path to be visualised.</param>
         /// 
+        /// <param name="traversalType">The type of traversal behaviour for the path, determining how the path is visualised.
+        /// For example, Loop visualises an additional line between the last and first point.
+        /// </param>
+        /// 
         /// <param name="previousPointIndex">The index of the previous point in the path. Used to determine which line segment
         /// to highlight as active.</param>
         /// 
         /// <param name="targetPointIndex">The index of the target point in the path. Used to determine which line segment to
         /// highlight as active.</param>
-        /// 
-        /// <param name="traversalType">The type of traversal behaviour for the path, determining how the path is visualised.
-        /// For example, Loop visualises an additional line between the last and first point.
-        /// </param>
-        public static void DrawPath(Vector3[] path, int previousPointIndex = 0, int targetPointIndex = 0, 
-                                    PathTraversalType traversalType = PathTraversalType.Once)
+        public static void DrawPath(Vector3[] path, PathTraversalType traversalType = PathTraversalType.Once, 
+                                    int previousPointIndex = 0, int targetPointIndex = 0)
         {
             if (!IsPathValid(path, previousPointIndex, targetPointIndex))
             {
@@ -112,10 +113,11 @@ namespace Tethr.PathVisualiser
             }
 
             LineSettings lineSettings = Settings.GetLineSettings();
+            const int INVALID_INDEX = -1;
 
             // INFO: Lines
             Handles.color = lineSettings.defaultColour;
-            int lowerIndex = Mathf.Min(previousPointIndex, targetPointIndex);
+            int lowerIndex = previousPointIndex.Equals(targetPointIndex) ? INVALID_INDEX : Mathf.Min(previousPointIndex, targetPointIndex);
             for (int i = 0; i < path.Length; ++i)
             {
                 // INFO: Skip Current Line Between Previous and Target Point if Not Wrapping
@@ -203,7 +205,7 @@ namespace Tethr.PathVisualiser
 
         private static float ScreenToWorldScale(float value, Vector3 position)
         {
-            return value / HandleUtility.GetHandleSize(position);
+            return Mathf.Clamp(value / HandleUtility.GetHandleSize(position), 0.0f, value * MAX_WORLD_SCALE_MULTIPLIER);
         }
 
         private static int ScreenToWorldScale(int value, Vector3 position)

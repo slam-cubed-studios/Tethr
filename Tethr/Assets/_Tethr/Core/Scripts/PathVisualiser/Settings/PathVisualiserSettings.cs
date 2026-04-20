@@ -22,7 +22,7 @@ namespace Tethr.PathVisualiser
         public Color activeColour = Color.green;
 
         [Tooltip("Thickness of the path lines.")]
-        [Min(0.0f)] public float thickness = 10.0f;
+        [Min(0.0f)] public float thickness = 15.0f;
     }
 
     /// <summary>

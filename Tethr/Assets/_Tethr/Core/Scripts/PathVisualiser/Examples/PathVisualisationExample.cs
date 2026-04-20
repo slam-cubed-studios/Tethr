@@ -149,7 +149,7 @@ namespace Tethr.PathVisualiser.Examples
 
         private void OnDrawGizmosSelected()
         {
-            PathVisualiserUtility.DrawPath(path.ToArray(), currentPointIndex, nextPointIndex, traversalType);
+            PathVisualiserUtility.DrawPath(path.ToArray(), traversalType, currentPointIndex, nextPointIndex);
         }
     }
 }
