@@ -10,7 +10,7 @@ namespace Tethr.PathVisualiser
     /// <summary>
     /// Provides a settings provider for configuring Path Visualiser preferences in the Unity Editor.
     /// </summary>
-    public class PathVisualiserSettingsProvider
+    public static class PathVisualiserSettingsProvider
     {
         [SettingsProvider]
         public static SettingsProvider CreatePathVisualiserSettingsProvider()

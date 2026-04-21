@@ -56,7 +56,7 @@ namespace Tethr.SurfaceAligner
         }
 
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
-        private static void CleanupForPlayMode()
+        private static void Deinitialise()
         {
             SceneView.duringSceneGui -= DuringSceneGUI;
             Selection.selectionChanged -= OnSelectionChanged;

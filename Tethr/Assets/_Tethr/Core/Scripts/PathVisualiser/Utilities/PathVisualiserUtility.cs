@@ -25,7 +25,6 @@ namespace Tethr.PathVisualiser
     /// Supports both 2D and 3D path visualisation. Intended for use within the Unity Editor. Ideally called from OnDrawGizmos 
     /// or similar editor-only contexts.
     /// </remarks>
-    [InitializeOnLoad]
     public static class PathVisualiserUtility
     {
         private static PathVisualiserSettings settings;
@@ -57,10 +56,8 @@ namespace Tethr.PathVisualiser
             }
         }
 
-        static PathVisualiserUtility() {}
-
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
-        private static void CleanupForPlayMode()
+        private static void Deinitialise()
         {
             labelStyle = null;
             settings = null;
