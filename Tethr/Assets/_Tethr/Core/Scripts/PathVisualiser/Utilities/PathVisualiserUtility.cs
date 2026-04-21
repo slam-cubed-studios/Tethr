@@ -38,7 +38,7 @@ namespace Tethr.PathVisualiser
             {
                 if (settings == null)
                 {
-                    settings = PathVisualiserSettings.GetOrCreateSettings();
+                    settings = PathVisualiserSettings.instance;
                 }
 
                 return settings;

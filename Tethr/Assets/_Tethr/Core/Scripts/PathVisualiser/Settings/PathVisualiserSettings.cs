@@ -57,33 +57,15 @@ namespace Tethr.PathVisualiser
     /// </summary>
     /// 
     /// <remarks>
-    /// Intended for use within the Unity Editor as a ScriptableObject asset. Supports loading, creation, and
-    /// retrieval of settings for path visualisation.
+    /// Intended for storing per-user preferences related to the Path Visualiser tool.
     /// </remarks>
-    public class PathVisualiserSettings : ScriptableObject
+    [FilePath("PathVisualiserSettings/PathVisualiserSettings.asset", FilePathAttribute.Location.PreferencesFolder)]
+    public class PathVisualiserSettings : ScriptableSingleton<PathVisualiserSettings>
     {
-        private const string ASSET_NAME = "PathVisualiserSettings";
-        private const string FOLDER_PATH = "Assets/Editor/PathVisualiserSettings/";
-        private const string ASSET_PATH = FOLDER_PATH + ASSET_NAME + ".asset";
-
         [Header("General Settings")]
         [SerializeField] private LineSettings lineSettings = new();
         [SerializeField] private DiscSettings discSettings = new();
         [SerializeField] private LabelSettings labelSettings = new();
-
-        public static PathVisualiserSettings GetOrCreateSettings()
-        {
-            PathVisualiserSettings settings = AssetDatabase.LoadAssetAtPath<PathVisualiserSettings>(ASSET_PATH);
-            if (settings == null)
-            {
-                settings = CreateInstance<PathVisualiserSettings>();
-                TryCreateDirectory();
-                AssetDatabase.CreateAsset(settings, ASSET_PATH);
-                AssetDatabase.SaveAssets();
-            }
-
-            return settings;
-        }
 
         public LineSettings GetLineSettings()
         {
@@ -103,16 +85,7 @@ namespace Tethr.PathVisualiser
             return labelSettings ??= new LabelSettings();
         }
 
-        private static void TryCreateDirectory()
-        {
-            if (!Directory.Exists(FOLDER_PATH))
-            {
-                Directory.CreateDirectory(FOLDER_PATH);
-                AssetDatabase.Refresh();
-            }
-        }
-
-        internal static SerializedObject GetSerializedSettings() => new(GetOrCreateSettings());
+        internal static SerializedObject GetSerializedSettings() => new(instance);
     }
 }
 #endif

@@ -15,7 +15,7 @@ namespace Tethr.PathVisualiser
         [SettingsProvider]
         public static SettingsProvider CreatePathVisualiserSettingsProvider()
         {
-            return new SettingsProvider("Project/Path Visualiser Settings", SettingsScope.User)
+            return new SettingsProvider("Preferences/Path Visualiser Settings", SettingsScope.User)
             {
                 label = "Path Visualiser",
                 guiHandler = _ =>
