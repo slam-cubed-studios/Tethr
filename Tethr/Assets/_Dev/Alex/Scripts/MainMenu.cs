@@ -14,11 +14,14 @@ public class MainMenu : MonoBehaviour
     Vector3 originalHookPosition;
 
     bool isHookOut = false;
+    bool isMenuOpen = true;
+
+    [SerializeField] GameObject levelSelectWindow;
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
-        
+        levelSelectWindow.SetActive(false);
     }
 
     // Update is called once per frame
@@ -26,7 +29,7 @@ public class MainMenu : MonoBehaviour
     {
         Vector3 mousePosition = Mouse.current.position.ReadValue();
 
-        if (Mouse.current.leftButton.wasPressedThisFrame)
+        if (Mouse.current.leftButton.wasPressedThisFrame && isMenuOpen)
         {
             //Store mouse position at the moment of the click and use that to calculate the new position of the grapple hook
             clickedPosition = mousePosition;
@@ -51,7 +54,7 @@ public class MainMenu : MonoBehaviour
             //Debug.Log((clickedPosition , currentHookPosition));
 
         }
-        else if(Mouse.current.rightButton.wasPressedThisFrame)
+        else if(Mouse.current.rightButton.wasPressedThisFrame && isMenuOpen)
         {
             //Return the grapple hook to its original position at a speed determined by GrappleHookSpeed, but only if it's not already at that position
             if (GrappleHook.transform.GetChild(0).gameObject.transform.position != originalHookPosition)
@@ -61,9 +64,14 @@ public class MainMenu : MonoBehaviour
             }
         }
 
-        if(!isHookOut)
+        if(!isHookOut && isMenuOpen)
         {
             GrappleHook.transform.rotation = Quaternion.LookRotation(Vector3.forward, mousePosition - GrappleHook.transform.position);
+        }
+
+        if(!levelSelectWindow.activeSelf)
+        {
+            isMenuOpen = true;
         }
     }
 
@@ -88,5 +96,12 @@ public class MainMenu : MonoBehaviour
             }
         }
         yield return new WaitForEndOfFrame();
+    }
+
+    public void OpenLevelWindow()
+    {
+        levelSelectWindow.SetActive(true);
+        isMenuOpen = false;
+        //gameObject.GetComponent<MainMenu>().enabled = false;
     }
 }
