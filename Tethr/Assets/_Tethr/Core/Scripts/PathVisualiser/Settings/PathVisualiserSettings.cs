@@ -9,7 +9,7 @@ using UnityEditor;
 namespace Tethr.PathVisualiser
 {
     /// <summary>
-    /// Represents configuration settings for rendering the lines between path points
+    /// Represents configuration settings for rendering the lines between path points.
     /// </summary>
     [Serializable]
     public class LineSettings
@@ -25,7 +25,7 @@ namespace Tethr.PathVisualiser
     }
 
     /// <summary>
-    /// Represents configuration settings for rendering the discs at path points
+    /// Represents configuration settings for rendering the discs at path points.
     /// </summary>
     [Serializable]
     public class DiscSettings
@@ -38,7 +38,7 @@ namespace Tethr.PathVisualiser
     }
 
     /// <summary>
-    /// Represents configuration settings for rendering the labels at path points
+    /// Represents configuration settings for rendering the labels at path points.
     /// </summary>
     [Serializable]
     public class LabelSettings

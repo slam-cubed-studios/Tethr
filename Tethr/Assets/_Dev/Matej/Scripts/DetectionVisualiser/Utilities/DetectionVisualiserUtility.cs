@@ -1,16 +1,21 @@
 // Copyright (c) 2026, TheMGLegends. All rights reserved.
 
-using UnityEngine;
 using System;
-using UnityEngine.UIElements;
-
-
+using UnityEngine;
 
 #if UNITY_EDITOR
 using UnityEditor;
 
 namespace Tethr.DetectionVisualiser
 {
+    /// <summary>
+    /// Provides utility methods for visualising detection areas in the Unity Editor Scene view.
+    /// </summary>
+    /// 
+    /// <remarks>
+    /// Supports both 2D and 3D detection visualisation for Range, Field of View, and Bounds types. Intended 
+    /// for use within the Unity Editor. Ideally called from OnDrawGizmos or similar editor-only contexts.
+    /// </remarks>
     public static class DetectionVisualiserUtility
     {
         private static DetectionVisualiserSettings settings;
@@ -34,6 +39,15 @@ namespace Tethr.DetectionVisualiser
             settings = null;
         }
 
+        /// <summary>
+        /// Draws a circular range visualisation in the X-Z plane (Ground).
+        /// </summary>
+        /// <param name="centre">The centre point of the range visualisation.</param>
+        /// 
+        /// <remarks>
+        /// This is the 3D version of the method. For a 2D range visualisation, use 
+        /// <see cref="DrawRange2D(Vector3, float, bool)"/> instead.
+        /// </remarks>
         public static void DrawRange(Vector3 centre, float radius, bool isTargetVisible = false)
         {
             if (!CanDrawRange(ref radius))
@@ -44,6 +58,15 @@ namespace Tethr.DetectionVisualiser
             DrawRangeHandles(centre, radius, isTargetVisible, Vector3.up);
         }
 
+        /// <summary>
+        /// Draws a circular range visualisation in the X-Y plane (Vertical).
+        /// </summary>
+        /// <param name="centre">The centre point of the range visualisation.</param>
+        /// 
+        /// <remarks>
+        /// This is the 2D version of the method. For a 3D range visualisation, use
+        /// <see cref="DrawRange(Vector3, float, bool)"/> instead.
+        /// </remarks>
         public static void DrawRange2D(Vector3 centre, float radius, bool isTargetVisible = false)
         {
             if (!CanDrawRange(ref radius))
@@ -52,6 +75,75 @@ namespace Tethr.DetectionVisualiser
             }
 
             DrawRangeHandles(centre, radius, isTargetVisible, Vector3.forward);
+        }
+
+        /// <summary>
+        /// Draws a field of view visualisation in the X-Z plane (Ground).
+        /// </summary>
+        /// <param name="centre">The centre point of the field of view visualisation.</param>
+        /// 
+        /// <param name="angle"> The angle of the field of view visualisation in degrees.</param>
+        /// 
+        /// <param name="rotation">The rotation of the game object in degrees, which offsets 
+        /// the field of view visualisation accordingly.</param>
+        /// 
+        /// <remarks>
+        /// This is the 3D version of the method. For a 2D field of view visualisation, use
+        /// <see cref="DrawFieldOfView2D(Vector3, float, float, bool, float)"/> instead.
+        /// </remarks>
+        public static void DrawFieldOfView(Vector3 centre, float angle, float radius, bool isTargetVisible = false, float rotation = 0.0f)
+        {
+            if (!CanDrawFieldOfView(ref angle, ref radius))
+            {
+
+                return;
+            }
+
+            Tuple<Vector3, Vector3> viewDirections = GetViewDirections(angle, rotation);
+            DrawFieldOfViewHandles(centre, angle, radius, isTargetVisible, Vector3.up, viewDirections.Item2, viewDirections.Item1);
+        }
+
+        /// <summary>
+        /// Draws a field of view visualisation in the X-Y plane (Vertical).
+        /// </summary>
+        /// <param name="centre">The centre point of the field of view visualisation.</param>
+        /// 
+        /// <param name="angle"> The angle of the field of view visualisation in degrees.</param>
+        /// 
+        /// <param name="rotation">The rotation of the game object in degrees, which offsets 
+        /// the field of view visualisation accordingly.</param>
+        /// 
+        /// <remarks>
+        /// This is the 2D version of the method. For a 3D field of view visualisation, use
+        /// <see cref="DrawFieldOfView(Vector3, float, float, bool, float)"/> instead.
+        /// </remarks>
+        public static void DrawFieldOfView2D(Vector3 centre, float angle, float radius, bool isTargetVisible = false, float rotation = 0.0f)
+        {
+            if (!CanDrawFieldOfView(ref angle, ref radius))
+            {
+                return;
+            }
+
+            Tuple<Vector3, Vector3> viewDirections = GetViewDirections2D(angle, rotation);
+            DrawFieldOfViewHandles(centre, angle, radius, isTargetVisible, Vector3.forward, viewDirections.Item1, viewDirections.Item2);
+        }
+
+        /// <summary>
+        /// Draws a bounds visualisation.
+        /// </summary>
+        /// <param name="centre">The centre point of the bounds visualisation.</param>
+        /// 
+        /// <remarks>
+        /// This method supports both 2D and 3D bounds visualisation.
+        /// </remarks>
+        public static void DrawBounds(Vector3 centre, Vector3 size, bool isTargetVisible = false)
+        {
+            if (!CanDrawBounds(ref size))
+            {
+                return;
+            }
+
+            DrawBoundsHandles(centre, size, isTargetVisible);
         }
 
         private static bool CanDrawRange(ref float radius)
@@ -80,28 +172,6 @@ namespace Tethr.DetectionVisualiser
 
             Handles.color = alphaColour;
             Handles.DrawSolidDisc(centre, normal, radius);
-        }
-
-        public static void DrawFieldOfView(Vector3 centre, float angle, float radius, bool isTargetVisible = false, float rotation = 0.0f)
-        {
-            if (!CanDrawFieldOfView(ref angle, ref radius))
-            {
-                return;
-            }
-
-            Tuple<Vector3, Vector3> viewDirections = GetViewDirections(angle, rotation);
-            DrawFieldOfViewHandles(centre, angle, radius, isTargetVisible, Vector3.up, viewDirections.Item2, viewDirections.Item1);
-        }
-
-        public static void DrawFieldOfView2D(Vector3 centre, float angle, float radius, bool isTargetVisible = false, float rotation = 0.0f)
-        {
-            if (!CanDrawFieldOfView(ref angle, ref radius))
-            {
-                return;
-            }
-
-            Tuple<Vector3, Vector3> viewDirections = GetViewDirections2D(angle, rotation);
-            DrawFieldOfViewHandles(centre, angle, radius, isTargetVisible, Vector3.forward, viewDirections.Item1, viewDirections.Item2);
         }
 
         private static bool CanDrawFieldOfView(ref float angle, ref float radius)
@@ -143,7 +213,7 @@ namespace Tethr.DetectionVisualiser
             Handles.DrawWireArc(centre, normal, viewDirectionB, angle, radius, detectionSettings.thickness);
 
             // INFO: No need to draw the lines if the angle is 360 degrees
-            if (angle < 360.0f)
+            if (angle != 360.0f)
             {
                 Handles.DrawLine(centre, centre + viewDirectionA * radius, detectionSettings.thickness);
                 Handles.DrawLine(centre, centre + viewDirectionB * radius, detectionSettings.thickness);
@@ -183,18 +253,8 @@ namespace Tethr.DetectionVisualiser
             angle -= rotation;
             float angleInRadians = angle * Mathf.Deg2Rad;
 
-            // INFO: X-Y Plane (2D)
+            // INFO: X-Y Plane (Vertical)
             return new Vector3(Mathf.Sin(angleInRadians), Mathf.Cos(angleInRadians), 0.0f);
-        }
-
-        public static void DrawBounds(Vector3 centre, Vector3 size, bool isTargetVisible = false)
-        {
-            if (!CanDrawBounds(ref size))
-            {
-                return;
-            }
-
-            DrawBoundsHandles(centre, size, isTargetVisible);
         }
 
         private static bool CanDrawBounds(ref Vector3 size)
