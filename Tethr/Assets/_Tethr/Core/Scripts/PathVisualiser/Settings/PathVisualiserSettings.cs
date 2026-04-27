@@ -83,7 +83,7 @@ namespace Tethr.PathVisualiser
         {
             if (useDefault)
             {
-                textColour = Color.white;
+                textColour = Color.black;
                 fontSize = 64;
             }
             else
