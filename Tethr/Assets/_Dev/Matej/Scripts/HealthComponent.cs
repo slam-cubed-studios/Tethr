@@ -91,10 +91,7 @@ public class HealthComponent : MonoBehaviour
         return currentHealth <= 0.0f;
     }
 
-    public bool IsInvincible()
-    {
-        return isInvincible;
-    }
+    public bool IsInvincible() => isInvincible;
 
     public void SetCurrentHealth(float currentHealth)
     {
@@ -103,10 +100,7 @@ public class HealthComponent : MonoBehaviour
         this.currentHealth = Mathf.Min(currentHealth, maxHealth);
     }
 
-    public float GetCurrentHealth()
-    {
-        return currentHealth;
-    }
+    public float GetCurrentHealth() => currentHealth;
 
     public void SetMaxHealth(float maxHealth)
     {
@@ -118,10 +112,7 @@ public class HealthComponent : MonoBehaviour
         currentHealth = Mathf.Min(currentHealth, maxHealth);
     }
 
-    public float GetMaxHealth()
-    {
-        return maxHealth;
-    }
+    public float GetMaxHealth() => maxHealth;
 
     public void SetInvincibilityDuration(float invincibilityDuration)
     {
@@ -130,10 +121,7 @@ public class HealthComponent : MonoBehaviour
         this.invincibilityDuration = invincibilityDuration;
     }
 
-    public float GetInvincibilityDuration()
-    {
-        return invincibilityDuration;
-    }
+    public float GetInvincibilityDuration() => invincibilityDuration;
 
     private void TryBeginInvincibility()
     {
