@@ -12,19 +12,37 @@ namespace Tethr.DetectionVisualiser
     /// Represents configuration settings for rendering detection visualisations.
     /// </summary>
     [Serializable]
-    public class DetectionSettings
+    public struct DetectionSettings
     {
         [Tooltip("Colour of the visualisation when an object is not detected.")]
-        public Color defaultColour = Color.white;
+        public Color defaultColour;
 
         [Tooltip("Colour of the visualisation when an object is detected.")]
-        public Color activeColour = Color.green;
+        public Color activeColour;
 
         [Tooltip("Alpha transparency of the inner fill of the visualisation.")]
-        [Range(0.0f, 1.0f)] public float alpha = 0.1f;
+        [Range(0.0f, 1.0f)] public float alpha;
 
         [Tooltip("Thickness of the visualisation lines.")]
-        [Min(0.0f)] public float thickness = 2.5f;
+        [Min(0.0f)] public float thickness;
+
+        public DetectionSettings(bool useDefaults)
+        {
+            if (useDefaults)
+            {
+                defaultColour = Color.white;
+                activeColour = Color.green;
+                alpha = 0.1f;
+                thickness = 2.5f;
+            }
+            else
+            {
+                defaultColour = default;
+                activeColour = default;
+                alpha = default;
+                thickness = default;
+            }
+        }
     }
 
     /// <summary>
@@ -38,13 +56,11 @@ namespace Tethr.DetectionVisualiser
     public class DetectionVisualiserSettings : ScriptableSingleton<DetectionVisualiserSettings>
     {
         [Header("General Settings")]
-        [SerializeField] private DetectionSettings detectionSettings = new();
+        [SerializeField] private DetectionSettings detectionSettings = new(true);
 
-        public DetectionSettings DetectionSettings()
-        {
-            // INFO: Ensure detectionSettings is never null
-            return detectionSettings ??= new DetectionSettings();
-        }
+        public ref readonly DetectionSettings DetectionSettings() => ref detectionSettings;
+
+        internal static void Save() => instance.Save(true);
 
         internal static SerializedObject GetSerializedSettings() => new(instance);
     }

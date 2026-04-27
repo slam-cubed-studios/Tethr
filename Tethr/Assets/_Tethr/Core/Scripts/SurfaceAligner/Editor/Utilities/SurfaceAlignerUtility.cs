@@ -208,8 +208,8 @@ namespace Tethr.SurfaceAligner
         private static void DrawSurfaceHitGizmos(Transform transform, SurfaceCheck surfaceCheck, Vector3 hitPoint, Vector3 hitNormal)
         {
             PhysicsType physicsType = Settings.GetPhysicsType();
-            LineSettings lineSettings = Settings.GetLineSettings();
-            DiscSettings discSettings = Settings.GetDiscSettings();
+            ref readonly LineSettings lineSettings = ref Settings.GetLineSettings();
+            ref readonly DiscSettings discSettings = ref Settings.GetDiscSettings();
 
             // INFO: Draw ray from object to hit point
             Handles.color = lineSettings.rayColour;

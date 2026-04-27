@@ -22,6 +22,10 @@ namespace Tethr.DetectionVisualiser
                     EditorGUILayout.PropertyField(serializedObject.FindProperty("detectionSettings"), true);
                     serializedObject.ApplyModifiedPropertiesWithoutUndo();
                 },
+                deactivateHandler = () =>
+                {
+                    DetectionVisualiserSettings.Save();
+                },
                 keywords = new System.Collections.Generic.HashSet<string>(new[] { "Detection", "Visualiser" })
             };
         }

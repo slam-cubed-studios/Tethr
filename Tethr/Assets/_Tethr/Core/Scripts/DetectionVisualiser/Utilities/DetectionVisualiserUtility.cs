@@ -162,7 +162,7 @@ namespace Tethr.DetectionVisualiser
 
         private static void DrawRangeHandles(Vector3 centre, float radius, bool isTargetVisible, Vector3 normal)
         {
-            DetectionSettings detectionSettings = Settings.DetectionSettings();
+            ref readonly DetectionSettings detectionSettings = ref Settings.DetectionSettings();
             Color colour = isTargetVisible ? detectionSettings.activeColour : detectionSettings.defaultColour;
             Color alphaColour = colour;
             alphaColour.a = detectionSettings.alpha;
@@ -204,7 +204,7 @@ namespace Tethr.DetectionVisualiser
         private static void DrawFieldOfViewHandles(Vector3 centre, float angle, float radius, bool isTargetVisible,
                                                    Vector3 normal, Vector3 viewDirectionA, Vector3 viewDirectionB)
         {
-            DetectionSettings detectionSettings = Settings.DetectionSettings();
+            ref readonly DetectionSettings detectionSettings = ref Settings.DetectionSettings();
             Color colour = isTargetVisible ? detectionSettings.activeColour : detectionSettings.defaultColour;
             Color alphaColour = colour;
             alphaColour.a = detectionSettings.alpha;
@@ -273,7 +273,7 @@ namespace Tethr.DetectionVisualiser
 
         private static void DrawBoundsHandles(Vector3 centre, Vector3 size, bool isTargetVisible)
         {
-            DetectionSettings detectionSettings = Settings.DetectionSettings();
+            ref readonly DetectionSettings detectionSettings = ref Settings.DetectionSettings();
             Color colour = isTargetVisible ? detectionSettings.activeColour : detectionSettings.defaultColour;
             Color alphaColour = colour;
             alphaColour.a = detectionSettings.alpha;

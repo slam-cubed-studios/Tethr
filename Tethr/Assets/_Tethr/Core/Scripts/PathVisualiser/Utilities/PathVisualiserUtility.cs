@@ -69,7 +69,7 @@ namespace Tethr.PathVisualiser
         public static void DrawTargetLine(Vector3 currentPosition, Vector3 targetPosition)
         {
             // INFO: Line Between Current and Target Position
-            LineSettings lineSettings = Settings.GetLineSettings();
+            ref readonly LineSettings lineSettings = ref Settings.GetLineSettings();
             Vector3 midpoint = (currentPosition + targetPosition) / 2.0f;
             Handles.color = lineSettings.activeColour;
             Handles.DrawLine(currentPosition, targetPosition, ScreenToWorldScale(lineSettings.thickness, midpoint));
@@ -109,7 +109,7 @@ namespace Tethr.PathVisualiser
                 return;
             }
 
-            LineSettings lineSettings = Settings.GetLineSettings();
+            ref readonly LineSettings lineSettings = ref Settings.GetLineSettings();
             const int INVALID_INDEX = -1;
 
             // INFO: Lines
@@ -213,7 +213,7 @@ namespace Tethr.PathVisualiser
         private static void DrawPoint(Vector3 position, string label)
         {
             // INFO: Disc at Position
-            DiscSettings discSettings = Settings.GetDiscSettings();
+            ref readonly DiscSettings discSettings = ref Settings.GetDiscSettings();
             Handles.color = discSettings.colour;
 
             // INFO: Have Disc face the camera for better visibility in 3D scenes. In 2D scenes, this will simply be a flat disc.
@@ -221,7 +221,7 @@ namespace Tethr.PathVisualiser
             Handles.DrawSolidDisc(position, forward, discSettings.radius);
 
             // INFO: Label at Position
-            LabelSettings labelSettings = Settings.GetLabelSettings();
+            ref readonly LabelSettings labelSettings = ref Settings.GetLabelSettings();
             LabelStyle.normal.textColor = labelSettings.textColour;
             LabelStyle.fontSize = ScreenToWorldScale(labelSettings.fontSize, position);
             Handles.Label(position, label, LabelStyle);

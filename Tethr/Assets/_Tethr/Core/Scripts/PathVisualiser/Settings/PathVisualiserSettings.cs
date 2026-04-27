@@ -12,42 +12,86 @@ namespace Tethr.PathVisualiser
     /// Represents configuration settings for rendering the lines between path points.
     /// </summary>
     [Serializable]
-    public class LineSettings
+    public struct LineSettings
     {
         [Tooltip("Colour of path lines that are currently not being traversed.")]
-        public Color defaultColour = Color.red;
+        public Color defaultColour;
 
         [Tooltip("Colour of the path line that is currently being traversed.")]
-        public Color activeColour = Color.green;
+        public Color activeColour;
 
         [Tooltip("Thickness of the path lines.")]
-        [Min(0.0f)] public float thickness = 15.0f;
+        [Min(0.0f)] public float thickness;
+
+        public LineSettings(bool useDefault)
+        {
+            if (useDefault)
+            {
+                defaultColour = Color.red;
+                activeColour = Color.green;
+                thickness = 15.0f;
+            }
+            else
+            {
+                defaultColour = default;
+                activeColour = default;
+                thickness = default;
+            }
+        }
     }
 
     /// <summary>
     /// Represents configuration settings for rendering the discs at path points.
     /// </summary>
     [Serializable]
-    public class DiscSettings
+    public struct DiscSettings
     {
         [Tooltip("Colour of the discs at path points.")]
-        public Color colour = Color.white;
+        public Color colour;
 
         [Tooltip("Radius of the discs at path points.")]
-        [Min(0.0f)] public float radius = 0.5f;
+        [Min(0.0f)] public float radius;
+
+        public DiscSettings(bool useDefault)
+        {
+            if (useDefault)
+            {
+                colour = Color.white;
+                radius = 0.5f;
+            }
+            else
+            {
+                colour = default;
+                radius = default;
+            }
+        }
     }
 
     /// <summary>
     /// Represents configuration settings for rendering the labels at path points.
     /// </summary>
     [Serializable]
-    public class LabelSettings
+    public struct LabelSettings
     {
         [Tooltip("Colour of the label texts at path points.")]
-        public Color textColour = Color.black;
+        public Color textColour;
 
         [Tooltip("Font size of the labels at path points.")]
-        [Min(0)] public int fontSize = 64;
+        [Min(0)] public int fontSize;
+
+        public LabelSettings(bool useDefault)
+        {
+            if (useDefault)
+            {
+                textColour = Color.white;
+                fontSize = 64;
+            }
+            else
+            {
+                textColour = default;
+                fontSize = default;
+            }
+        }
     }
 
     /// <summary>
@@ -62,27 +106,17 @@ namespace Tethr.PathVisualiser
     public class PathVisualiserSettings : ScriptableSingleton<PathVisualiserSettings>
     {
         [Header("General Settings")]
-        [SerializeField] private LineSettings lineSettings = new();
-        [SerializeField] private DiscSettings discSettings = new();
-        [SerializeField] private LabelSettings labelSettings = new();
+        [SerializeField] private LineSettings lineSettings = new(true);
+        [SerializeField] private DiscSettings discSettings = new(true);
+        [SerializeField] private LabelSettings labelSettings = new(true);
 
-        public LineSettings GetLineSettings()
-        {
-            // INFO: Ensure lineSettings is never null
-            return lineSettings ??= new LineSettings();
-        }
+        public ref readonly LineSettings GetLineSettings() => ref lineSettings;
 
-        public DiscSettings GetDiscSettings()
-        {
-            // INFO: Ensure discSettings is never null
-            return discSettings ??= new DiscSettings();
-        }
+        public ref readonly DiscSettings GetDiscSettings() => ref discSettings;
 
-        public LabelSettings GetLabelSettings()
-        {
-            // INFO: Ensure labelSettings is never null
-            return labelSettings ??= new LabelSettings();
-        }
+        public ref readonly LabelSettings GetLabelSettings() => ref labelSettings;
+
+        internal static void Save() => instance.Save(true);
 
         internal static SerializedObject GetSerializedSettings() => new(instance);
     }

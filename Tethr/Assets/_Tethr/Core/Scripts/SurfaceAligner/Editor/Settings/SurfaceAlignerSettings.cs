@@ -22,19 +22,37 @@ namespace Tethr.SurfaceAligner
     /// alignment in the Unity Editor.
     /// </summary>
     [Serializable]
-    public class LineSettings
+    public struct LineSettings
     {
         [Tooltip("Colour of the raycast line from the object to the ray's hit point.")]
-        public Color rayColour = Color.green;
+        public Color rayColour;
 
         [Tooltip("Colour of the normal line at the ray's hit point.")]
-        public Color normalColour = Color.yellow;
+        public Color normalColour;
 
         [Tooltip("Thickness of the lines.")]
-        [Min(0.0f)] public float thickness = 2.0f;
+        [Min(0.0f)] public float thickness;
 
         [Tooltip("Length of the normal line.")]
-        [Min(0.0f)] public float normalLength = 1.0f;
+        [Min(0.0f)] public float normalLength;
+
+        public LineSettings(bool useDefault)
+        {
+            if (useDefault)
+            {
+                rayColour = Color.green;
+                normalColour = Color.yellow;
+                thickness = 2.0f;
+                normalLength = 1.0f;
+            }
+            else
+            {
+                rayColour = default;
+                normalColour = default;
+                thickness = default;
+                normalLength = default;
+            }
+        }
     }
 
     /// <summary>
@@ -42,13 +60,27 @@ namespace Tethr.SurfaceAligner
     /// alignment in the Unity Editor.
     /// </summary>
     [Serializable]
-    public class DiscSettings
+    public struct DiscSettings
     {
         [Tooltip("Colour of the disc drawn at the hit point.")]
-        public Color colour = Color.green;
+        public Color colour;
 
         [Tooltip("Radius of the disc drawn at the hit point.")]
-        [Min(0.0f)] public float radius = 0.075f;
+        [Min(0.0f)] public float radius;
+
+        public DiscSettings(bool useDefault)
+        {
+            if (useDefault)
+            {
+                colour = Color.green;
+                radius = 0.075f;
+            }
+            else
+            {
+                colour = default;
+                radius = default;
+            }
+        }
     }
 
     /// <summary>
@@ -117,8 +149,8 @@ namespace Tethr.SurfaceAligner
 
         [Header("General Settings")]
         [SerializeField] private PhysicsType physicsType = PhysicsType.Physics3D;
-        [SerializeField] private LineSettings lineSettings = new();
-        [SerializeField] private DiscSettings discSettings = new();
+        [SerializeField] private LineSettings lineSettings = new(true);
+        [SerializeField] private DiscSettings discSettings = new(true);
 
         [Space(10.0f)]
         
@@ -182,22 +214,11 @@ namespace Tethr.SurfaceAligner
             return null;
         }
 
-        public PhysicsType GetPhysicsType()
-        {
-            return physicsType;
-        }
+        public PhysicsType GetPhysicsType() => physicsType;
 
-        public LineSettings GetLineSettings()
-        {
-            // INFO: Ensure lineSettings is never null
-            return lineSettings ??= new LineSettings();
-        }
+        public ref readonly LineSettings GetLineSettings() => ref lineSettings;
 
-        public DiscSettings GetDiscSettings()
-        {
-            // INFO: Ensure discSettings is never null
-            return discSettings ??= new DiscSettings();
-        }
+        public ref readonly DiscSettings GetDiscSettings() => ref discSettings;
 
         private void RebuildSurfaceChecksDictionary()
         {

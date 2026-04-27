@@ -26,6 +26,10 @@ namespace Tethr.PathVisualiser
                     EditorGUILayout.PropertyField(serializedObject.FindProperty("labelSettings"), new GUIContent("Label Settings"));
                     serializedObject.ApplyModifiedPropertiesWithoutUndo();
                 },
+                deactivateHandler = () =>
+                {
+                    PathVisualiserSettings.Save();
+                },
                 keywords = new System.Collections.Generic.HashSet<string>(new[] { "Path", "Visualiser" })
             };
         }
