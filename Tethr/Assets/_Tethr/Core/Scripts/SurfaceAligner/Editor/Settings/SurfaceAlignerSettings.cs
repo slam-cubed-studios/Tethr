@@ -36,9 +36,9 @@ namespace Tethr.SurfaceAligner
         [Tooltip("Length of the normal line.")]
         [Min(0.0f)] public float normalLength;
 
-        public LineSettings(bool useDefault)
+        public LineSettings(bool useDefaults)
         {
-            if (useDefault)
+            if (useDefaults)
             {
                 rayColour = Color.green;
                 normalColour = Color.yellow;
@@ -68,9 +68,9 @@ namespace Tethr.SurfaceAligner
         [Tooltip("Radius of the disc drawn at the hit point.")]
         [Min(0.0f)] public float radius;
 
-        public DiscSettings(bool useDefault)
+        public DiscSettings(bool useDefaults)
         {
-            if (useDefault)
+            if (useDefaults)
             {
                 colour = Color.green;
                 radius = 0.075f;
@@ -105,8 +105,8 @@ namespace Tethr.SurfaceAligner
         [Tooltip("Maximum distance for the raycast when performing the surface check. Must be greater than 0.")]
         public float maxDistance = Mathf.Infinity;
 
-        [Tooltip("Layer mask to specify which layers should be considered when performing the raycast for the surface check.")]
-        public LayerMask layerMask = 0;
+        [Tooltip("Surface mask specifies which layers should be considered when performing the raycast for the surface check.")]
+        public LayerMask surfaceMask = 0;
 
         [Tooltip("Offset applied to object after it has been aligned to the surface. Typically used when visuals don't " +
                  "match surface alignment.")]

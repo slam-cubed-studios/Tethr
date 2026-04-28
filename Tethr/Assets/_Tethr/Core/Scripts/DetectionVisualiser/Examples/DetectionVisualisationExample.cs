@@ -17,7 +17,7 @@ namespace Tethr.DetectionVisualiser.Examples
     /// </remarks>
     public class DetectionVisualisationExample : MonoBehaviour
     {
-        public enum DetectionType
+        private enum DetectionType
         {
             Range,
             FieldOfView,

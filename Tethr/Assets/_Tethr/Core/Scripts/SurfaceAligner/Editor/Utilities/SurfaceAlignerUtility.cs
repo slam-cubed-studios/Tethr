@@ -140,13 +140,13 @@ namespace Tethr.SurfaceAligner
                     case PhysicsType.Physics3D:
                         {
                             selectedTransform.AlignToSurface(surfaceCheck.direction, surfaceCheck.maxDistance,
-                                                             surfaceCheck.layerMask, surfaceCheck.offset);
+                                                             surfaceCheck.surfaceMask, surfaceCheck.offset);
                             break;
                         }
                     case PhysicsType.Physics2D:
                         {
                             selectedTransform.AlignToSurface2D(surfaceCheck.direction, surfaceCheck.maxDistance,
-                                                               surfaceCheck.layerMask, surfaceCheck.offset);
+                                                               surfaceCheck.surfaceMask, surfaceCheck.offset);
                             break;
                         }
                     default:
@@ -181,7 +181,7 @@ namespace Tethr.SurfaceAligner
                 {
                     case PhysicsType.Physics3D:
                         {
-                            RaycastHit hit = selectedTransform.GetSurfaceHit(surfaceCheck.direction, surfaceCheck.maxDistance, surfaceCheck.layerMask);
+                            RaycastHit hit = selectedTransform.GetSurfaceHit(surfaceCheck.direction, surfaceCheck.maxDistance, surfaceCheck.surfaceMask);
                             if (hit.collider != null)
                             {
                                 DrawSurfaceHitGizmos(selectedTransform, surfaceCheck, hit.point, hit.normal);
@@ -191,7 +191,7 @@ namespace Tethr.SurfaceAligner
                         }
                     case PhysicsType.Physics2D:
                         {
-                            RaycastHit2D hit = selectedTransform.GetSurfaceHit2D(surfaceCheck.direction, surfaceCheck.maxDistance, surfaceCheck.layerMask);
+                            RaycastHit2D hit = selectedTransform.GetSurfaceHit2D(surfaceCheck.direction, surfaceCheck.maxDistance, surfaceCheck.surfaceMask);
                             if (hit.collider != null)
                             {
                                 DrawSurfaceHitGizmos(selectedTransform, surfaceCheck, hit.point, hit.normal);

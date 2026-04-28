@@ -23,9 +23,9 @@ namespace Tethr.PathVisualiser
         [Tooltip("Thickness of the path lines.")]
         [Min(0.0f)] public float thickness;
 
-        public LineSettings(bool useDefault)
+        public LineSettings(bool useDefaults)
         {
-            if (useDefault)
+            if (useDefaults)
             {
                 defaultColour = Color.red;
                 activeColour = Color.green;
@@ -52,9 +52,9 @@ namespace Tethr.PathVisualiser
         [Tooltip("Radius of the discs at path points.")]
         [Min(0.0f)] public float radius;
 
-        public DiscSettings(bool useDefault)
+        public DiscSettings(bool useDefaults)
         {
-            if (useDefault)
+            if (useDefaults)
             {
                 colour = Color.white;
                 radius = 0.5f;
@@ -79,9 +79,9 @@ namespace Tethr.PathVisualiser
         [Tooltip("Font size of the labels at path points.")]
         [Min(0)] public int fontSize;
 
-        public LabelSettings(bool useDefault)
+        public LabelSettings(bool useDefaults)
         {
-            if (useDefault)
+            if (useDefaults)
             {
                 textColour = Color.black;
                 fontSize = 64;
