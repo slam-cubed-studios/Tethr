@@ -3,6 +3,7 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
 using static UnityEngine.UI.Image;
+using System.Collections.Generic;
 
 public class Grapple : MonoBehaviour
 {
@@ -15,6 +16,8 @@ public class Grapple : MonoBehaviour
     private Vector2 anchorPoint;
     private Rigidbody2D playerRigidbody;
     private float ropeTotalDistance;
+    private List<Vector2> ropePoints = new List<Vector2>();
+    private List<GameObject> ropeObjects = new List<GameObject>();
 
     private void Awake()
     {
@@ -87,19 +90,12 @@ public class Grapple : MonoBehaviour
         Debug.DrawRay(transform.position, midpoint, Color.green, 2f);
         Vector2 dirToPoint = (anchorPoint - (Vector2)transform.position).normalized;
 
-
-        // Rotate 90° both ways
         Vector2 perpA = new Vector2(-dirToPoint.y, dirToPoint.x);
         Vector2 perpB = new Vector2(dirToPoint.y, -dirToPoint.x);
 
         Vector2 velocityDir = playerRigidbody.linearVelocity.normalized;
 
-        // Choose closest to velocity
-        Vector2 chosenDirection =
-            (Vector2.Dot(velocityDir, perpA) > Vector2.Dot(velocityDir, perpB))
-            ? perpA
-            : perpB;
-
+        Vector2 chosenDirection = (Vector2.Dot(velocityDir, perpA) > Vector2.Dot(velocityDir, perpB)) ? perpA : perpB;
 
         playerRigidbody.AddForce(chosenDirection * grappleStrength);
     }
@@ -114,4 +110,20 @@ public class Grapple : MonoBehaviour
         ropeTotalDistance -= Vector2.Distance(anchorPoint, hit.point);
         FireRope(hit.point);
     }
+
+    private void DetectRopeUnrwap()
+    {
+
+    }
+
+    private void AddNewRope(Vector2 ropeHit)
+    {
+        ropePoints.Add(ropeHit);
+        //ropeObjects.Add(Instantiate())
+    }
+
+    //detect rope collision should add the point to the list and inst a new rope obj
+    //detect rope unwrap should FireRope on the previous rope point before deleting the old rope point and obj in list
+    //redo MoveRope to use latest in RopeObjects list
+
 }
