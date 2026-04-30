@@ -19,7 +19,33 @@ public class PlayerMovement : MonoBehaviour
         To limit the players speed a force is always applied in the opposite direction of their movement 
         
         A raycast will be needed to see whether or not the player can jump and what surface they are currently on
-        
+
+
+
+        Logic:
+
+        Functions:
+            CalcualateRun();
+            CalculateJump();
+            
+            MoveCharacter();
+
+
+        Calculate Run:
+        Vars: 
+            float moveClamp
+            float deAcceleration
+            float Input.X
+            bool isGrounded
+
+        Func:
+            CalcGroundedMove{
+                If(Input.X != 0) {
+                 currentSpeed += Input.X * accelaration * Time.deltaTime
+
+                currentSpeed = Clamp(currentspeed, -moveclamp, moveclamp)
+                }
+            
      */
 
 
@@ -37,9 +63,6 @@ public class PlayerMovement : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (Input.GetKey(KeyCode.A))
-        {
-
-        }
+        rb.linearVelocityX = Input.GetAxis("Horizontal") * moveSpeed;
     }
 }
