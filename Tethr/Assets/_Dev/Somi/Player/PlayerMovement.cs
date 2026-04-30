@@ -1,5 +1,6 @@
 using System.ComponentModel;
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 [RequireComponent(typeof(Rigidbody2D))]
 public class PlayerMovement : MonoBehaviour
@@ -49,9 +50,15 @@ public class PlayerMovement : MonoBehaviour
      */
 
 
-    [SerializeField] private float moveSpeed = 5f;
+    [SerializeField] private float accelaration = 5f;
+    [SerializeField] private float deAccelaration = 5f;
+    [SerializeField] private float currentSpeed = 0f;
+    [SerializeField] private float moveClamp = 20f;
+
      private float inputDirection = 0;
     [SerializeField] private Rigidbody2D rb;
+
+    public InputActionReference move;
     
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
@@ -63,6 +70,27 @@ public class PlayerMovement : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        rb.linearVelocityX = Input.GetAxis("Horizontal") * moveSpeed;
+        inputDirection = move.action.ReadValue<Vector2>().x;
+        CalcGroundedMove();
+        Move();
+    }
+
+    void CalcGroundedMove()
+    {
+        if(inputDirection != 0)
+        {
+            currentSpeed += inputDirection * accelaration * Time.deltaTime;
+            currentSpeed = Mathf.Clamp(currentSpeed, -moveClamp, moveClamp);
+        }
+        else
+        {
+            currentSpeed = Mathf.MoveTowards(currentSpeed, 0, deAccelaration * Time.deltaTime);
+        }
+        
+    }
+
+    void Move()
+    {
+        rb.linearVelocityX = currentSpeed;
     }
 }
