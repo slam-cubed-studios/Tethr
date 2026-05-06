@@ -1,6 +1,5 @@
 // Copyright (c) 2026, TheMGLegends. All rights reserved.
 
-using System;
 using UnityEngine;
 
 #if UNITY_EDITOR
@@ -48,14 +47,14 @@ namespace Tethr.DetectionVisualiser
         /// This is the 3D version of the method. For a 2D range visualisation, use 
         /// <see cref="DrawRange2D(Vector3, float, bool)"/> instead.
         /// </remarks>
-        public static void DrawRange(Vector3 centre, float radius, bool isTargetVisible = false)
+        public static void DrawRange(Vector3 centre, float radius, bool isTargetDetected = false)
         {
             if (!CanDrawRange(ref radius))
             {
                 return;
             }
 
-            DrawRangeHandles(centre, radius, isTargetVisible, Vector3.up);
+            DrawRangeHandles(centre, radius, isTargetDetected);
         }
 
         /// <summary>
@@ -67,14 +66,14 @@ namespace Tethr.DetectionVisualiser
         /// This is the 2D version of the method. For a 3D range visualisation, use
         /// <see cref="DrawRange(Vector3, float, bool)"/> instead.
         /// </remarks>
-        public static void DrawRange2D(Vector3 centre, float radius, bool isTargetVisible = false)
+        public static void DrawRange2D(Vector3 centre, float radius, bool isTargetDetected = false)
         {
             if (!CanDrawRange(ref radius))
             {
                 return;
             }
 
-            DrawRangeHandles(centre, radius, isTargetVisible, Vector3.forward);
+            DrawRangeHandles2D(centre, radius, isTargetDetected, Vector3.forward);
         }
 
         /// <summary>
@@ -91,16 +90,17 @@ namespace Tethr.DetectionVisualiser
         /// This is the 3D version of the method. For a 2D field of view visualisation, use
         /// <see cref="DrawFieldOfView2D(Vector3, float, float, bool, float)"/> instead.
         /// </remarks>
-        public static void DrawFieldOfView(Vector3 centre, float angle, float radius, bool isTargetVisible = false, float rotation = 0.0f)
+        public static void DrawFieldOfView(Vector3 centre, float angle, float radius, bool isTargetDetected = false, float rotation = 0.0f)
         {
             if (!CanDrawFieldOfView(ref angle, ref radius))
             {
-
                 return;
             }
 
-            Tuple<Vector3, Vector3> viewDirections = GetViewDirections(angle, rotation);
-            DrawFieldOfViewHandles(centre, angle, radius, isTargetVisible, Vector3.up, viewDirections.Item2, viewDirections.Item1);
+            float halfAngle = angle / 2.0f;
+            Vector3 viewDirectionA = Vector3Utilities.DirectionFromAngleXZ(rotation + halfAngle);
+            Vector3 viewDirectionB = Vector3Utilities.DirectionFromAngleXZ(rotation - halfAngle);
+            DrawFieldOfViewHandles(centre, angle, radius, isTargetDetected, Vector3.up, viewDirectionA, viewDirectionB);
         }
 
         /// <summary>
@@ -117,15 +117,17 @@ namespace Tethr.DetectionVisualiser
         /// This is the 2D version of the method. For a 3D field of view visualisation, use
         /// <see cref="DrawFieldOfView(Vector3, float, float, bool, float)"/> instead.
         /// </remarks>
-        public static void DrawFieldOfView2D(Vector3 centre, float angle, float radius, bool isTargetVisible = false, float rotation = 0.0f)
+        public static void DrawFieldOfView2D(Vector3 centre, float angle, float radius, bool isTargetDetected = false, float rotation = 0.0f)
         {
             if (!CanDrawFieldOfView(ref angle, ref radius))
             {
                 return;
             }
 
-            Tuple<Vector3, Vector3> viewDirections = GetViewDirections2D(angle, rotation);
-            DrawFieldOfViewHandles(centre, angle, radius, isTargetVisible, Vector3.forward, viewDirections.Item1, viewDirections.Item2);
+            float halfAngle = angle / 2.0f;
+            Vector3 viewDirectionA = Vector3Utilities.DirectionFromAngleXY(rotation + halfAngle);
+            Vector3 viewDirectionB = Vector3Utilities.DirectionFromAngleXY(rotation - halfAngle);
+            DrawFieldOfViewHandles2D(centre, angle, radius, isTargetDetected, Vector3.forward, viewDirectionA, viewDirectionB);
         }
 
         /// <summary>
@@ -136,14 +138,14 @@ namespace Tethr.DetectionVisualiser
         /// <remarks>
         /// This method supports both 2D and 3D bounds visualisation.
         /// </remarks>
-        public static void DrawBounds(Vector3 centre, Vector3 size, bool isTargetVisible = false)
+        public static void DrawBounds(Vector3 centre, Vector3 size, bool isTargetDetected = false)
         {
             if (!CanDrawBounds(ref size))
             {
                 return;
             }
 
-            DrawBoundsHandles(centre, size, isTargetVisible);
+            DrawBoundsHandles(centre, size, isTargetDetected);
         }
 
         private static bool CanDrawRange(ref float radius)
@@ -160,10 +162,26 @@ namespace Tethr.DetectionVisualiser
             return true;
         }
 
-        private static void DrawRangeHandles(Vector3 centre, float radius, bool isTargetVisible, Vector3 normal)
+        private static void DrawRangeHandles(Vector3 centre, float radius, bool isTargetDetected)
         {
             ref readonly DetectionSettings detectionSettings = ref Settings.DetectionSettings();
-            Color colour = isTargetVisible ? detectionSettings.activeColour : detectionSettings.defaultColour;
+            Color colour = isTargetDetected ? detectionSettings.activeColour : detectionSettings.defaultColour;
+            Color alphaColour = colour;
+            alphaColour.a = detectionSettings.alpha;
+
+            Handles.color = colour;
+            Handles.DrawWireDisc(centre, Vector3.up, radius, detectionSettings.thickness);
+            Handles.DrawWireDisc(centre, Vector3.right, radius, detectionSettings.thickness);
+            Handles.DrawWireDisc(centre, Vector3.forward, radius, detectionSettings.thickness);
+
+            Handles.color = alphaColour;
+            Handles.SphereHandleCap(0, centre, Quaternion.identity, radius * 2.0f, EventType.Repaint);
+        }
+
+        private static void DrawRangeHandles2D(Vector3 centre, float radius, bool isTargetDetected, Vector3 normal)
+        {
+            ref readonly DetectionSettings detectionSettings = ref Settings.DetectionSettings();
+            Color colour = isTargetDetected ? detectionSettings.activeColour : detectionSettings.defaultColour;
             Color alphaColour = colour;
             alphaColour.a = detectionSettings.alpha;
 
@@ -201,11 +219,37 @@ namespace Tethr.DetectionVisualiser
             return true;
         }
 
-        private static void DrawFieldOfViewHandles(Vector3 centre, float angle, float radius, bool isTargetVisible,
+        private static void DrawFieldOfViewHandles(Vector3 centre, float angle, float radius, bool isTargetDetected,
                                                    Vector3 normal, Vector3 viewDirectionA, Vector3 viewDirectionB)
         {
             ref readonly DetectionSettings detectionSettings = ref Settings.DetectionSettings();
-            Color colour = isTargetVisible ? detectionSettings.activeColour : detectionSettings.defaultColour;
+            Color colour = isTargetDetected ? detectionSettings.activeColour : detectionSettings.defaultColour;
+            Color alphaColour = colour;
+            alphaColour.a = detectionSettings.alpha;
+
+            Handles.color = colour;
+            Handles.DrawWireDisc(centre, Vector3.up, radius, detectionSettings.thickness);
+            Handles.DrawWireDisc(centre, Vector3.right, radius, detectionSettings.thickness);
+            Handles.DrawWireDisc(centre, Vector3.forward, radius, detectionSettings.thickness);
+            Handles.DrawWireArc(centre, normal, viewDirectionB, angle, radius, detectionSettings.thickness);
+
+            // INFO: No need to draw the lines if the angle is 360 degrees
+            if (angle != 360.0f)
+            {
+                Handles.DrawLine(centre, centre + viewDirectionA * radius, detectionSettings.thickness);
+                Handles.DrawLine(centre, centre + viewDirectionB * radius, detectionSettings.thickness);
+            }
+
+            Handles.color = alphaColour;
+            Handles.DrawSolidArc(centre, normal, viewDirectionB, angle, radius);
+        }
+
+
+        private static void DrawFieldOfViewHandles2D(Vector3 centre, float angle, float radius, bool isTargetDetected,
+                                                     Vector3 normal, Vector3 viewDirectionA, Vector3 viewDirectionB)
+        {
+            ref readonly DetectionSettings detectionSettings = ref Settings.DetectionSettings();
+            Color colour = isTargetDetected ? detectionSettings.activeColour : detectionSettings.defaultColour;
             Color alphaColour = colour;
             alphaColour.a = detectionSettings.alpha;
 
@@ -223,40 +267,6 @@ namespace Tethr.DetectionVisualiser
             Handles.DrawSolidArc(centre, normal, viewDirectionB, angle, radius);
         }
 
-        private static Tuple<Vector3, Vector3> GetViewDirections(float angle, float rotation)
-        {
-            float halfAngle = angle / 2.0f;
-            Vector3 viewDirectionA = DirectionFromAngle(-halfAngle, rotation);
-            Vector3 viewDirectionB = DirectionFromAngle(halfAngle, rotation);
-            return new Tuple<Vector3, Vector3>(viewDirectionA, viewDirectionB);
-        }
-
-        private static Tuple<Vector3, Vector3> GetViewDirections2D(float angle, float rotation)
-        {
-            float halfAngle = angle / 2.0f;
-            Vector3 viewDirectionA = DirectionFromAngle2D(-halfAngle, rotation);
-            Vector3 viewDirectionB = DirectionFromAngle2D(halfAngle, rotation);
-            return new Tuple<Vector3, Vector3>(viewDirectionA, viewDirectionB);
-        }
-
-        private static Vector3 DirectionFromAngle(float angle, float rotation)
-        {
-            angle -= rotation;
-            float angleInRadians = angle * Mathf.Deg2Rad;
-
-            // INFO: X-Z Plane (Ground)
-            return new Vector3(Mathf.Sin(angleInRadians), 0.0f, Mathf.Cos(angleInRadians));
-        }
-
-        private static Vector3 DirectionFromAngle2D(float angle, float rotation)
-        {
-            angle -= rotation;
-            float angleInRadians = angle * Mathf.Deg2Rad;
-
-            // INFO: X-Y Plane (Vertical)
-            return new Vector3(Mathf.Sin(angleInRadians), Mathf.Cos(angleInRadians), 0.0f);
-        }
-
         private static bool CanDrawBounds(ref Vector3 size)
         {
             // INFO: No need to draw bounds if the dimensions are 0
@@ -271,10 +281,10 @@ namespace Tethr.DetectionVisualiser
             return true;
         }
 
-        private static void DrawBoundsHandles(Vector3 centre, Vector3 size, bool isTargetVisible)
+        private static void DrawBoundsHandles(Vector3 centre, Vector3 size, bool isTargetDetected)
         {
             ref readonly DetectionSettings detectionSettings = ref Settings.DetectionSettings();
-            Color colour = isTargetVisible ? detectionSettings.activeColour : detectionSettings.defaultColour;
+            Color colour = isTargetDetected ? detectionSettings.activeColour : detectionSettings.defaultColour;
             Color alphaColour = colour;
             alphaColour.a = detectionSettings.alpha;
 

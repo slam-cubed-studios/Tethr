@@ -19,7 +19,7 @@ namespace Tethr.SurfaceAligner
         /// </remarks>
         /// 
         /// <returns> 
-        /// <see langword="true"/> if a viable surface was found and the transform was aligned successfully, <see langword="false"/> otherwise."
+        /// <see langword="true"/> if a viable surface was found and the transform was aligned successfully, <see langword="false"/> otherwise.
         /// </returns>
         public static bool AlignToSurface(this Transform transform, Vector3 direction, float maxDistance = Mathf.Infinity,
                                           int layerMask = Physics.AllLayers, Vector3 offset = default)
@@ -85,7 +85,7 @@ namespace Tethr.SurfaceAligner
         /// </remarks>
         /// 
         /// <returns>
-        /// <see langword="true"/> if a viable surface was found and the transform was aligned successfully, <see langword="false"/> otherwise."
+        /// <see langword="true"/> if a viable surface was found and the transform was aligned successfully, <see langword="false"/> otherwise.
         /// </returns>
         public static bool AlignToSurface2D(this Transform transform, Vector2 direction, float maxDistance = Mathf.Infinity,
                                             int layerMask = Physics2D.AllLayers, Vector2 offset = default)
@@ -153,7 +153,7 @@ namespace Tethr.SurfaceAligner
         /// </remarks>
         /// 
         /// <returns>
-        /// <see langword="true"/> if a viable surface was found and the transform was aligned successfully, <see langword="false"/> otherwise.""
+        /// <see langword="true"/> if a viable surface was found and the transform was aligned successfully, <see langword="false"/> otherwise.
         /// </returns>
         public static bool AlignToGround(this Transform transform, float maxDistance = Mathf.Infinity,
                                          int layerMask = Physics.AllLayers, Vector3 offset = default)
@@ -171,7 +171,7 @@ namespace Tethr.SurfaceAligner
         /// </remarks>
         /// 
         /// <returns>
-        /// <see langword="true"/> if a viable surface was found and the transform was aligned successfully, <see langword="false"/> otherwise.""
+        /// <see langword="true"/> if a viable surface was found and the transform was aligned successfully, <see langword="false"/> otherwise.
         /// </returns>
         public static bool AlignToGround2D(this Transform transform, float maxDistance = Mathf.Infinity,
                                            int layerMask = Physics2D.AllLayers, Vector2 offset = default)
