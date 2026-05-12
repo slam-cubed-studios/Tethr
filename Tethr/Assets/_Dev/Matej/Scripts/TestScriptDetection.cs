@@ -2,7 +2,7 @@ using Tethr;
 using UnityEditor;
 using UnityEngine;
 
-public class TestScript : MonoBehaviour
+public class TestScriptDetection : MonoBehaviour
 {
     [SerializeField] private bool is2D = true;
 

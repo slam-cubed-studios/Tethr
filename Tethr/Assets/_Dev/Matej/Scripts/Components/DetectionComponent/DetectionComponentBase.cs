@@ -86,15 +86,12 @@ namespace Tethr
     /// </summary>
     public abstract class DetectionComponentBase : MonoBehaviour
     {
-        private enum DebugDrawType
-        {
-            Always,
-            WhenSelected,
-            Never
-        }
+        [Header("Debug Settings")]
+        [SerializeField] private DebugDrawType debugDrawType = DebugDrawType.WhenSelected;
+
+        [Space(10.0f)]
 
         [SerializeField] protected SpatialData spatialData = new(true);
-        [SerializeField] private DebugDrawType debugDrawType = DebugDrawType.WhenSelected;
 
         private void OnDrawGizmos()
         {

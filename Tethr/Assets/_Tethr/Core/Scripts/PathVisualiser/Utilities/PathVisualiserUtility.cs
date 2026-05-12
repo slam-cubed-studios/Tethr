@@ -1,5 +1,6 @@
 // Copyright (c) 2026, TheMGLegends. All rights reserved.
 
+using System;
 using UnityEngine;
 
 #if UNITY_EDITOR
@@ -7,16 +8,6 @@ using UnityEditor;
 
 namespace Tethr.PathVisualiser
 {
-    /// <summary>
-    /// Specifies the type of traversal behaviour for a path, determining how the path is visualised.
-    /// </summary>
-    public enum PathTraversalType
-    {
-        Once,
-        Loop,
-        PingPong
-    }
-
     /// <summary>
     /// Provides utility methods for visualising paths in the Unity Editor Scene view.
     /// </summary>
@@ -30,6 +21,7 @@ namespace Tethr.PathVisualiser
         private static PathVisualiserSettings settings;
         private static GUIStyle labelStyle;
         private const float MAX_WORLD_SCALE_MULTIPLIER = 2.5f;
+        private const int LINE_DRAW_REPETITIONS = 3;
 
         private static PathVisualiserSettings Settings
         {
@@ -72,7 +64,7 @@ namespace Tethr.PathVisualiser
             ref readonly LineSettings lineSettings = ref Settings.GetLineSettings();
             Vector3 midpoint = (currentPosition + targetPosition) / 2.0f;
             Handles.color = lineSettings.activeColour;
-            Handles.DrawLine(currentPosition, targetPosition, ScreenToWorldScale(lineSettings.thickness, midpoint));
+            DrawOpaqueLine(currentPosition, targetPosition, ScreenToWorldScale(lineSettings.thickness, midpoint));
 
             // INFO: Current Point
             DrawPoint(currentPosition, "C");
@@ -129,7 +121,7 @@ namespace Tethr.PathVisualiser
                     Vector3 currentPoint = path[i];
                     Vector3 nextPoint = path[i + 1];
                     Vector3 midpoint = (currentPoint + nextPoint) / 2.0f;
-                    Handles.DrawLine(currentPoint, nextPoint, ScreenToWorldScale(lineSettings.thickness, midpoint));
+                    DrawOpaqueLine(currentPoint, nextPoint, ScreenToWorldScale(lineSettings.thickness, midpoint));
                 }
             }
 
@@ -139,7 +131,7 @@ namespace Tethr.PathVisualiser
                 Vector3 lastPoint = path[^1];
                 Vector3 firstPoint = path[0];
                 Vector3 midpoint = (lastPoint + firstPoint) / 2.0f;
-                Handles.DrawLine(lastPoint, firstPoint, ScreenToWorldScale(lineSettings.thickness, midpoint));
+                DrawOpaqueLine(lastPoint, firstPoint, ScreenToWorldScale(lineSettings.thickness, midpoint));
             }
 
             // INFO: Draw Active Path Line
@@ -149,7 +141,7 @@ namespace Tethr.PathVisualiser
                 Vector3 previousPoint = path[previousPointIndex];
                 Vector3 targetPoint = path[targetPointIndex];
                 Vector3 midpoint = (previousPoint + targetPoint) / 2.0f;
-                Handles.DrawLine(previousPoint, targetPoint, ScreenToWorldScale(lineSettings.thickness, midpoint));
+                DrawOpaqueLine(previousPoint, targetPoint, ScreenToWorldScale(lineSettings.thickness, midpoint));
             }
 
             // INFO: Draw Path Points
@@ -160,11 +152,34 @@ namespace Tethr.PathVisualiser
             }
         }
 
+        /// <summary>
+        /// Overloaded method for DrawPath that accepts a Vector2 array for 2D path visualisation.
+        /// </summary>
+        /// <param name="path">The array of Vector2 points representing the path to be visualised.</param>
+        /// 
+        /// <param name="traversalType">The type of traversal behaviour for the path, determining how the path is visualised.
+        /// For example, Loop visualises an additional line between the last and first point.
+        /// </param>
+        /// 
+        /// <param name="previousPointIndex">The index of the previous point in the path. Used to determine which line segment
+        /// to highlight as active.</param>
+        /// 
+        /// <param name="targetPointIndex">The index of the target point in the path. Used to determine which line segment to
+        /// highlight as active.</param>
+        /// 
+        /// <remarks>
+        /// Internally converts to Vector3 with z = 0.
+        /// </remarks>
+        public static void DrawPath(Vector2[] path, PathTraversalType traversalType = PathTraversalType.Once,
+                                      int previousPointIndex = 0, int targetPointIndex = 0)
+        {
+            DrawPath(Array.ConvertAll(path, point => (Vector3)point), traversalType, previousPointIndex, targetPointIndex);
+        }
+
         private static bool IsPathValid(Vector3[] path, int previousPointIndex, int nextPointIndex)
         {
-            if (path == null)
+            if (path == null || path.Length == 0)
             {
-                Debug.LogError("Path cannot be null.");
                 return false;
             }
 
@@ -225,6 +240,14 @@ namespace Tethr.PathVisualiser
             LabelStyle.normal.textColor = labelSettings.textColour;
             LabelStyle.fontSize = ScreenToWorldScale(labelSettings.fontSize, position);
             Handles.Label(position, label, LabelStyle);
+        }
+
+        private static void DrawOpaqueLine(Vector3 p1, Vector3 p2, float thickness)
+        {
+            for (int i = 0; i < LINE_DRAW_REPETITIONS; ++i)
+            {
+                Handles.DrawLine(p1, p2, thickness);
+            }
         }
     }
 }
