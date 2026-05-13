@@ -1288,15 +1288,15 @@ MonoBehaviour:
   waypointData:
     traversalType: 1
     waypoints:
-    - {x: 0, y: 0}
-    - {x: 10.3, y: 0}
-    - {x: 10.3, y: 9.5}
-    - {x: 5.75, y: 9.5}
+    - {x: 0, y: 0, z: 0}
+    - {x: 10.3, y: 0, z: 0}
+    - {x: 10.3, y: 9.5, z: 0}
+    - {x: 5.75, y: 9.5, z: 0}
     previousWaypointIndex: 0
     nextWaypointIndex: 0
   roamData:
-    roamRange: {x: 8.46, y: 7.3}
-    exclusionRange: {x: 3.76, y: 3.8}
+    roamRange: {x: 4.16, y: 3.4, z: 0}
+    exclusionRange: {x: 2.11, y: 3.02, z: 0}
 --- !u!212 &2023554188
 SpriteRenderer:
   serializedVersion: 2

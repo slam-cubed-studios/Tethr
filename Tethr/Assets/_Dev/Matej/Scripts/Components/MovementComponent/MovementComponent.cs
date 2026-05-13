@@ -29,7 +29,7 @@ namespace Tethr
         [InlineButton(nameof(ReversePath), "Reverse Path")]
         public PathTraversalType traversalType;
 
-        public List<Vector2> waypoints;
+        public List<Vector3> waypoints;
 
         [HideInInspector] public int previousWaypointIndex;
         [HideInInspector] public int nextWaypointIndex;
@@ -55,12 +55,12 @@ namespace Tethr
             }
         }
 
-        public Vector2 GetNextWaypointPosition()
+        public Vector3 GetNextWaypointPosition()
         {
             if (!IsValid())
             {
                 Debug.LogWarning("Waypoint list is null or empty. Cannot get next waypoint position.");
-                return Vector2.zero;
+                return Vector3.zero;
             }
 
             // INFO: Ensures that the entity walks to the first waypoint if it's not already there
@@ -128,17 +128,17 @@ namespace Tethr
     public struct RoamData
     {
         [Tooltip("The maximum distance the object can roam from its current position.")]
-        [Min(0.0f)] public Vector2 roamRange;
+        [Min(0.0f)] public Vector3 roamRange;
 
         [Tooltip("The minimum distance around the object that will be ignored choosing a position to roam to.")]
-        [Min(0.0f)] public Vector2 exclusionRange;
+        [Min(0.0f)] public Vector3 exclusionRange;
 
         public RoamData(bool useDefaults)
         {
             if (useDefaults)
             {
-                roamRange = Vector2.zero;
-                exclusionRange = Vector2.zero;
+                roamRange = Vector3.zero;
+                exclusionRange = Vector3.zero;
             }
             else
             {
@@ -147,14 +147,16 @@ namespace Tethr
             }
         }
 
-        public readonly Vector2 GetRandomRoamPosition()
+        public readonly Vector3 GetRandomRoamPosition()
         {
             // INFO: Randomly determines the direction (Negative -1 or Positive 1)
             int directionX = UnityEngine.Random.Range(0, 2) * 2 - 1;
             int directionY = UnityEngine.Random.Range(0, 2) * 2 - 1;
+            int directionZ = UnityEngine.Random.Range(0, 2) * 2 - 1;
 
-            return new Vector2(UnityEngine.Random.Range(exclusionRange.x, roamRange.x) * directionX, 
-                               UnityEngine.Random.Range(exclusionRange.y, roamRange.y) * directionY);
+            return new Vector3(UnityEngine.Random.Range(exclusionRange.x, roamRange.x) * directionX,
+                               UnityEngine.Random.Range(exclusionRange.y, roamRange.y) * directionY,
+                               UnityEngine.Random.Range(exclusionRange.z, roamRange.z) * directionZ);
         }
 
         public void Validate()
@@ -168,70 +170,22 @@ namespace Tethr
             {
                 exclusionRange.y = roamRange.y;
             }
+
+            if (exclusionRange.z > roamRange.z)
+            {
+                exclusionRange.z = roamRange.z;
+            }
         }
 
-        public readonly void DrawRoamGizmos(Vector2 position)
+        public readonly void DrawRoamGizmos(Vector3 position)
         {
-            if (roamRange == Vector2.zero)
-            {
-                return;
-            }
-
-            Color roamRangeColour = Color.cyan;
-            Color exclusionRangeColour = Color.red;
-
-
             // INFO: Roam Range Debug Visualisation
-            Handles.color = roamRangeColour;
-            if (roamRange.x == 0.0f)
-            {
-                DrawLines(position, roamRange, false);
-            }
-
-            if (roamRange.y == 0.0f)
-            {
-                DrawLines(position, roamRange, true);
-            }
-            
-            Handles.DrawWireCube(position, new Vector3(roamRange.x * 2.0f, roamRange.y * 2.0f));
+            Handles.color = Color.cyan;
+            Handles.DrawWireCube(position, roamRange * 2.0f);
 
             // INFO: Exclusion Range Debug Visualisation
-            Handles.color = exclusionRangeColour;
-            if (exclusionRange.x == 0.0f)
-            {
-                DrawLines(position, exclusionRange, false);
-            }
-
-            if (exclusionRange.y == 0.0f)
-            {
-                DrawLines(position, exclusionRange, true);
-            }
-
-            Handles.DrawWireCube(position, new Vector3(exclusionRange.x * 2.0f, exclusionRange.y * 2.0f));
-        }
-
-        private readonly void DrawLines(Vector2 position, Vector2 range, bool areLinesVertical)
-        {
-            // NOTE: Draw line ends that are perpendicular to the roam direction to better visualise the
-            //       roam range when one of the dimensions is zero
-            const float lineLength = 1.0f;
-
-            Vector2 p1 = new(position.x + (areLinesVertical ? range.x : -lineLength), position.y + (areLinesVertical ? -lineLength : range.y));
-            Vector2 p2 = new(position.x + (areLinesVertical ? range.x : lineLength), position.y + (areLinesVertical ? lineLength : range.y));
-            Handles.DrawLine(p1, p2, 2.0f);
-
-            if (areLinesVertical)
-            {
-                p1.x = position.x - range.x;
-                p2.x = position.x - range.x;
-            }
-            else
-            {
-                p1.y = position.y - range.y;
-                p2.y = position.y - range.y;
-            }
-
-            Handles.DrawLine(p1, p2, 2.0f);
+            Handles.color = Color.red;
+            Handles.DrawWireCube(position, exclusionRange * 2.0f);
         }
     }
 
@@ -241,7 +195,9 @@ namespace Tethr
     /// </summary>
     /// 
     /// <remarks>
-    /// This component is currently designed to work in 2D space, but can be extended to support 3D movement if needed.
+    /// This component works for both 2D and 3D use cases, however users should be aware of the z-axis when working in 2D, as
+    /// checks like <see cref="HasReachedDestination"/> will consider the z-axis when determining whether the object has reached 
+    /// its destination.
     /// </remarks>
     public class MovementComponent : MonoBehaviour
     {
@@ -264,7 +220,7 @@ namespace Tethr
         [ShowField(nameof(movementType), MovementType.Roam), Title("<b> Roam Settings</b>", 12, 0.0f, false)]
         [SerializeField] private RoamData roamData = new(true);
 
-        private Vector2 destination;
+        private Vector3 destination;
 
         private void OnValidate()
         {
@@ -299,7 +255,7 @@ namespace Tethr
 
         /// <summary>
         /// Convenience method to move towards the current destination. The destination can be set 
-        /// manually using <see cref="SetDestination(Vector2)"/>
+        /// manually using <see cref="SetDestination(Vector3)"/>
         /// </summary>
         public void MoveToDestination()
         {
@@ -311,9 +267,9 @@ namespace Tethr
         /// does not perform any checks and is primarily inteded to be used when movementType is set to Manual.
         /// </summary>
         /// <param name="position"></param>
-        public void MoveTo(Vector2 position)
+        public void MoveTo(Vector3 position)
         {
-            transform.position = Vector2.MoveTowards(transform.position, position, movementSpeed * Time.deltaTime);
+            transform.position = Vector3.MoveTowards(transform.position, position, movementSpeed * Time.deltaTime);
         }
 
         /// <summary>
@@ -322,7 +278,7 @@ namespace Tethr
         /// <returns></returns>
         public bool HasReachedDestination()
         {
-            return Vector2.Distance(transform.position, destination) < destinationThreshold;
+            return Vector3.Distance(transform.position, destination) < destinationThreshold;
         }
 
         /// <summary>
@@ -340,8 +296,7 @@ namespace Tethr
                     SetDestination(waypointData.GetNextWaypointPosition());
                     break;
                 case MovementType.Roam:
-                    Vector2 transformPosition = transform.position;
-                    SetDestination(transformPosition + roamData.GetRandomRoamPosition());
+                    SetDestination(transform.position + roamData.GetRandomRoamPosition());
                     break;
                 default:
                     break;
@@ -350,9 +305,9 @@ namespace Tethr
 
         public MovementType GetMovementType() => movementType;
 
-        public void SetDestination(Vector2 destination) => this.destination = destination;
+        public void SetDestination(Vector3 destination) => this.destination = destination;
 
-        public Vector2 GetDestination() => destination;
+        public Vector3 GetDestination() => destination;
 
         private void DrawMovementGizmos()
         {
