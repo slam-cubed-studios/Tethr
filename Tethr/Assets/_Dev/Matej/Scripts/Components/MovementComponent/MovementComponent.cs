@@ -133,17 +133,25 @@ namespace Tethr
         [Tooltip("The minimum distance around the object that will be ignored choosing a position to roam to.")]
         [Min(0.0f)] public Vector3 exclusionRange;
 
+        [Header("Debug Settings")]
+        public Color roamRangeColour;
+        public Color exclusionRangeColour;
+
         public RoamData(bool useDefaults)
         {
             if (useDefaults)
             {
                 roamRange = Vector3.zero;
                 exclusionRange = Vector3.zero;
+                roamRangeColour = Color.cyan;
+                exclusionRangeColour = Color.red;
             }
             else
             {
                 roamRange = default;
                 exclusionRange = default;
+                roamRangeColour = default;
+                exclusionRangeColour = default;
             }
         }
 
@@ -180,12 +188,18 @@ namespace Tethr
         public readonly void DrawRoamGizmos(Vector3 position)
         {
             // INFO: Roam Range Debug Visualisation
-            Handles.color = Color.cyan;
+            Handles.color = roamRangeColour;
             Handles.DrawWireCube(position, roamRange * 2.0f);
 
+            Gizmos.color = new Color(roamRangeColour.r, roamRangeColour.g, roamRangeColour.b, 0.05f);
+            Gizmos.DrawCube(position, roamRange * 2.0f);
+
             // INFO: Exclusion Range Debug Visualisation
-            Handles.color = Color.red;
+            Handles.color = exclusionRangeColour;
             Handles.DrawWireCube(position, exclusionRange * 2.0f);
+
+            Gizmos.color = new Color(exclusionRangeColour.r, exclusionRangeColour.g, exclusionRangeColour.b, 0.05f);
+            Gizmos.DrawCube(position, exclusionRange * 2.0f);
         }
     }
 
@@ -224,9 +238,6 @@ namespace Tethr
 
         private void OnValidate()
         {
-            // INFO: Prevents the drawing of path gizmos in the editor view
-            destination = transform.position;
-
             if (movementType == MovementType.Roam)
             {
                 roamData.Validate();
@@ -266,7 +277,6 @@ namespace Tethr
         /// Used to move towards a specified position at the configured movement speed. This method
         /// does not perform any checks and is primarily inteded to be used when movementType is set to Manual.
         /// </summary>
-        /// <param name="position"></param>
         public void MoveTo(Vector3 position)
         {
             transform.position = Vector3.MoveTowards(transform.position, position, movementSpeed * Time.deltaTime);
@@ -275,7 +285,6 @@ namespace Tethr
         /// <summary>
         /// Determines whether the current position of the object is within the specified distance threshold of the destination.
         /// </summary>
-        /// <returns></returns>
         public bool HasReachedDestination()
         {
             return Vector3.Distance(transform.position, destination) < destinationThreshold;
@@ -314,7 +323,7 @@ namespace Tethr
             switch (movementType)
             {
                 case MovementType.Manual:
-                    if (!HasReachedDestination())
+                    if (!HasReachedDestination() && Application.isPlaying)
                     {
                         PathVisualiserUtility.DrawTargetLine(transform.position, destination);
                     }
@@ -329,7 +338,7 @@ namespace Tethr
                 case MovementType.Roam:
                     roamData.DrawRoamGizmos(transform.position);
 
-                    if (!HasReachedDestination())
+                    if (!HasReachedDestination() && Application.isPlaying)
                     {
                         PathVisualiserUtility.DrawTargetLine(transform.position, destination);
                     }
