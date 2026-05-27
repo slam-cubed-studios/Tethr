@@ -657,7 +657,7 @@ MonoBehaviour:
   grappleStrength: 4
   fireGrappleDistance: 100
   minDistanceBetweenPoints: 0.1
-  ropePrefab: {fileID: 294951760}
+  ropeObject: {fileID: 294951760}
 --- !u!231 &481443262
 SpringJoint2D:
   m_ObjectHideFlags: 0
@@ -1005,7 +1005,7 @@ Transform:
   m_GameObject: {fileID: 740853215}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -16.83, y: 7.33, z: 0}
+  m_LocalPosition: {x: -19.48, y: 9.48, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -1073,7 +1073,7 @@ Camera:
   far clip plane: 1000
   field of view: 60
   orthographic: 1
-  orthographic size: 7.75
+  orthographic size: 12.01
   m_Depth: -1
   m_CullingMask:
     serializedVersion: 2
@@ -1474,7 +1474,7 @@ Transform:
   m_GameObject: {fileID: 1318092041}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -4.92, y: 6.36, z: 0}
+  m_LocalPosition: {x: -1.69, y: 5.28, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -1731,7 +1731,7 @@ Transform:
   m_GameObject: {fileID: 1572455524}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -10.13, y: 9.56, z: 0}
+  m_LocalPosition: {x: -8.23, y: 14.03, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -2063,7 +2063,7 @@ Transform:
   m_GameObject: {fileID: 1844572622}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -14.65, y: 1.88, z: 0}
+  m_LocalPosition: {x: -16.19, y: -1.04, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []

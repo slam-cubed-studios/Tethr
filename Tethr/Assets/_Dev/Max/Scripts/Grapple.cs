@@ -10,14 +10,15 @@ public class Grapple : MonoBehaviour
     [SerializeField] private float grappleStrength = 1f;
     [SerializeField] private float fireGrappleDistance = 100f;
     [SerializeField] private float minDistanceBetweenPoints = 0.1f;
-    [SerializeField] private GameObject ropePrefab;
+    [SerializeField] private GameObject ropeObject;
     private int ignoreLayers;
     private DistanceJoint2D distanceJoint;
     private Vector2 anchorPoint;
     private Rigidbody2D playerRigidbody;
     private float ropeTotalDistance;
     private List<Vector2> ropePoints = new List<Vector2>();
-    private List<GameObject> ropeObjects = new List<GameObject>();
+    private List<GameObject> ropeSegmentObjects = new List<GameObject>();
+    private bool canGrapple;
 
     private void Awake()
     {
@@ -33,32 +34,51 @@ public class Grapple : MonoBehaviour
 
     private void Update()
     {
-        if (Mouse.current.leftButton.wasPressedThisFrame)
-        {
-            PlayerRopeControl();
-        }
+        PlayerInput();
 
-        MoveRope();
-
-        PullPlayerOnRope();
-
-        DetectRopeCollision();
+        
 
         //distanceJoint.distance = Vector2.Distance(transform.position, anchorPoint);
     }
 
-    private void PlayerRopeControl()
+    private void PlayerInput()
+    {
+        if (Mouse.current.leftButton.wasPressedThisFrame) //initial mouse press
+        {
+            canGrapple = PlayerRopeControl();
+        }
+
+        if (canGrapple && Mouse.current.leftButton.isPressed) //mouse is pressed
+        {
+            ropeObject.SetActive(true);
+            distanceJoint.enabled = true;
+
+            MoveRope();
+
+            PullPlayerOnRope();
+
+            DetectRopeCollision();
+        }
+        else
+        {
+            ropeObject.SetActive(false);
+            distanceJoint.enabled = false;
+        }
+    }
+
+    private bool PlayerRopeControl()
     {
         Vector2 mousePosition = Mouse.current.position.ReadValue() - new Vector2(Screen.width / 2f, Screen.height / 2f);
         Vector2 mouseDirection = mousePosition.normalized;
         RaycastHit2D hit = Physics2D.Raycast(transform.position, mouseDirection, fireGrappleDistance, ignoreLayers);
-        if (hit.distance == 0)
+        if (hit == false)
         {
-            return;
+            return false;
         }
         Debug.DrawLine(transform.position, hit.point, Color.red, 2f);
         ropeTotalDistance = hit.distance;
         FireRope(hit.point);
+        return true;
     }
 
     private void FireRope(Vector2 ropeHitPoint)
@@ -75,10 +95,10 @@ public class Grapple : MonoBehaviour
         Vector2 direction = anchorPoint - (Vector2)transform.position;
         float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
 
-        ropePrefab.transform.rotation = Quaternion.Euler(0f, 0f, angle);
+        ropeObject.transform.rotation = Quaternion.Euler(0f, 0f, angle);
 
         //float distance = (anchorPoint - (Vector2)transform.position).magnitude;
-        ropePrefab.transform.localScale = new Vector3(Vector2.Distance(anchorPoint, transform.position), 1, 1);
+        ropeObject.transform.localScale = new Vector3(Vector2.Distance(anchorPoint, transform.position), 1, 1);
     }
 
     private void PullPlayerOnRope()
@@ -88,16 +108,16 @@ public class Grapple : MonoBehaviour
         Vector2 midpoint = (anchorDirection + velocityDirection).normalized;
 
         Debug.DrawRay(transform.position, midpoint, Color.green, 2f);
-        Vector2 dirToPoint = (anchorPoint - (Vector2)transform.position).normalized;
+        //Vector2 dirToPoint = (anchorPoint - (Vector2)transform.position).normalized;
 
-        Vector2 perpA = new Vector2(-dirToPoint.y, dirToPoint.x);
-        Vector2 perpB = new Vector2(dirToPoint.y, -dirToPoint.x);
+        //Vector2 perpA = new Vector2(-dirToPoint.y, dirToPoint.x);
+        //Vector2 perpB = new Vector2(dirToPoint.y, -dirToPoint.x);
 
-        Vector2 velocityDir = playerRigidbody.linearVelocity.normalized;
+        //Vector2 velocityDir = playerRigidbody.linearVelocity.normalized;
 
-        Vector2 chosenDirection = (Vector2.Dot(velocityDir, perpA) > Vector2.Dot(velocityDir, perpB)) ? perpA : perpB;
+        //Vector2 chosenDirection = (Vector2.Dot(velocityDir, perpA) > Vector2.Dot(velocityDir, perpB)) ? perpA : perpB;
 
-        playerRigidbody.AddForce(chosenDirection * grappleStrength);
+        playerRigidbody.AddForce(midpoint * grappleStrength);
     }
 
     private void DetectRopeCollision()
