@@ -270,6 +270,56 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::UITimerSubscriber
   timeText: {fileID: 179413867}
+--- !u!1 &214066302
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 214066304}
+  - component: {fileID: 214066303}
+  m_Layer: 0
+  m_Name: Player
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &214066303
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 214066302}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e30ba6a87a96c2c40a6d169d666262a1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::TestPlayer
+  level: 1
+  coins: 0
+  saveAction: {fileID: -6108894470006115420, guid: b083d209dbc61634f93878f6781b4893, type: 3}
+  loadAction: {fileID: 1929282404662958592, guid: b083d209dbc61634f93878f6781b4893, type: 3}
+  gainAction: {fileID: 2351274154152918263, guid: b083d209dbc61634f93878f6781b4893, type: 3}
+  collectAction: {fileID: 8520061801235298775, guid: b083d209dbc61634f93878f6781b4893, type: 3}
+--- !u!4 &214066304
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 214066302}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 954.1699, y: 449.31003, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &379482221
 GameObject:
   m_ObjectHideFlags: 0
@@ -686,3 +736,4 @@ SceneRoots:
   - {fileID: 468764571}
   - {fileID: 647769524}
   - {fileID: 379482223}
+  - {fileID: 214066304}

@@ -1,0 +1,83 @@
+{
+    "version": 0,
+    "name": "Save Input Actions",
+    "maps": [
+        {
+            "name": "Player",
+            "id": "b3e6a0cf-7c2f-4c8d-9f8b-1f2b3d4c5e6f",
+            "actions": [
+                {
+                    "name": "Save",
+                    "type": "Button",
+                    "id": "5f1d9b8a-6f9b-4f05-9d3a-2b4f5c6d7e8f",
+                    "expectedControlType": "Button"
+                },
+                {
+                    "name": "Load",
+                    "type": "Button",
+                    "id": "8e7f6d5c-4b3a-2910-8f7e-6d5c4b3a2f10",
+                    "expectedControlType": "Button"
+                },
+                {
+                    "name": "GainExperience",
+                    "type": "Button",
+                    "id": "1a2b3c4d-5e6f-7081-92a3-b4c5d6e7f809",
+                    "expectedControlType": "Button"
+                },
+                {
+                    "name": "CollectCoins",
+                    "type": "Button",
+                    "id": "9f8e7d6c-5b4a-3210-9f8e-7d6c5b4a3210",
+                    "expectedControlType": "Button"
+                }
+            ],
+            "bindings": [
+                {
+                    "name": "",
+                    "id": "a0b1c2d3-e4f5-6789-a0b1-c2d3e4f56789",
+                    "path": "<Keyboard>/s",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Save",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "b1c2d3e4-f567-89a0-b1c2-d3e4f56789a0",
+                    "path": "<Keyboard>/l",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Load",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "c2d3e4f5-6789-a0b1-c2d3-e4f56789a0b1",
+                    "path": "<Keyboard>/g",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "GainExperience",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "d3e4f567-89a0-b1c2-d3e4-f56789a0b1c2",
+                    "path": "<Keyboard>/c",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "CollectCoins",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                }
+            ]
+        }
+    ],
+    "controlSchemes": []
+}
