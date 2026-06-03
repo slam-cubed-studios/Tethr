@@ -11,6 +11,9 @@ public class Grapple : MonoBehaviour
     [SerializeField] private float fireGrappleDistance = 100f;
     [SerializeField] private float minDistanceBetweenPoints = 0.1f;
     [SerializeField] private GameObject ropeObject;
+    [SerializeField] private int autoAimTraceCount = 1;
+    [SerializeField] private float autoAimRadius = 20f;
+    [SerializeField] private float autoAimRange = 100f;
     private int ignoreLayers;
     private DistanceJoint2D distanceJoint;
     private Vector2 anchorPoint;
@@ -36,7 +39,6 @@ public class Grapple : MonoBehaviour
     {
         PlayerInput();
 
-        
 
         //distanceJoint.distance = Vector2.Distance(transform.position, anchorPoint);
     }
@@ -57,7 +59,7 @@ public class Grapple : MonoBehaviour
 
             PullPlayerOnRope();
 
-            DetectRopeCollision();
+            DetectRopeSegmentCollision();
         }
         else
         {
@@ -68,16 +70,24 @@ public class Grapple : MonoBehaviour
 
     private bool PlayerRopeControl()
     {
-        Vector2 mousePosition = Mouse.current.position.ReadValue() - new Vector2(Screen.width / 2f, Screen.height / 2f);
-        Vector2 mouseDirection = mousePosition.normalized;
-        RaycastHit2D hit = Physics2D.Raycast(transform.position, mouseDirection, fireGrappleDistance, ignoreLayers);
-        if (hit == false)
+        //Vector2 mousePosition = Mouse.current.position.ReadValue() - new Vector2(Screen.width / 2f, Screen.height / 2f);
+        //Vector2 mouseDirection = mousePosition.normalized;
+        //RaycastHit2D hit = Physics2D.Raycast(transform.position, mouseDirection, fireGrappleDistance, ignoreLayers);
+        //if (hit == false)
+        //{
+        //    return false;
+        //}
+        //Debug.DrawLine(transform.position, hit.point, Color.red, 2f);
+
+        Vector2 autoAimResult = HookAutoAim();
+        
+        if (autoAimResult == Vector2.zero)
         {
             return false;
         }
-        Debug.DrawLine(transform.position, hit.point, Color.red, 2f);
-        ropeTotalDistance = hit.distance;
-        FireRope(hit.point);
+
+        ropeTotalDistance = Vector2.Distance(autoAimResult, transform.position);
+        FireRope(autoAimResult);
         return true;
     }
 
@@ -120,7 +130,7 @@ public class Grapple : MonoBehaviour
         playerRigidbody.AddForce(midpoint * grappleStrength);
     }
 
-    private void DetectRopeCollision()
+    private void DetectRopeSegmentCollision()
     {
         RaycastHit2D hit = Physics2D.Linecast(transform.position, anchorPoint, ignoreLayers);
         if (hit.point == Vector2.zero || Vector2.Distance(anchorPoint, hit.point) < minDistanceBetweenPoints)
@@ -145,5 +155,38 @@ public class Grapple : MonoBehaviour
     //detect rope collision should add the point to the list and inst a new rope obj
     //detect rope unwrap should FireRope on the previous rope point before deleting the old rope point and obj in list
     //redo MoveRope to use latest in RopeObjects list
+
+    private Vector2 HookAutoAim()
+    {
+        Vector2 mousePosition = Mouse.current.position.ReadValue() - new Vector2(Screen.width / 2f, Screen.height / 2f);
+        Vector2 mouseDirection = mousePosition.normalized;
+
+        float startAngle = -autoAimRadius * 0.5f;
+        float angleStep = autoAimTraceCount > 1 ? autoAimRadius / (autoAimTraceCount - 1) : 0f;
+
+        float autoAimSmallestDist = Mathf.Infinity;
+        Vector2 autoAimSmallestLoc = Vector2.zero;
+        for (int i = 0; i < autoAimTraceCount; i++)
+        {
+            float angle = startAngle + angleStep * i;
+            Vector2 rayDir = Quaternion.Euler(0, 0, angle) * mouseDirection;
+
+            RaycastHit2D hit = Physics2D.Raycast(transform.position, rayDir, autoAimRange, ignoreLayers);
+            Debug.DrawRay(transform.position, rayDir * autoAimRange, Color.red, 1f);
+
+            if (!hit)
+            {
+                continue;
+            }
+
+            if (hit.distance < autoAimSmallestDist)
+            {
+                autoAimSmallestDist = hit.distance;
+                autoAimSmallestLoc = hit.point;
+            }
+        }
+
+        return autoAimSmallestLoc;
+    }
 
 }
