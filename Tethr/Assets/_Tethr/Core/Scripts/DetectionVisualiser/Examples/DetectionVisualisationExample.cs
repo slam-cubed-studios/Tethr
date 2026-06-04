@@ -40,32 +40,33 @@ namespace Tethr.DetectionVisualiser.Examples
 
         private void OnDrawGizmos()
         {
+            Vector3 centre = transform.position + transform.TransformDirection(detectionOffset);
             switch (detectionType)
             {
                 case DetectionType.Range:
                     if (is3D)
                     {
-                        DetectionVisualiserUtility.DrawRange(transform.position + detectionOffset, radius, isTargetVisible);
+                        DetectionVisualiserUtility.DrawRange(centre, radius, isTargetVisible);
                     }
                     else
                     {
-                        DetectionVisualiserUtility.DrawRange2D(transform.position + detectionOffset, radius, isTargetVisible);
+                        DetectionVisualiserUtility.DrawRange2D(centre, radius, isTargetVisible);
                     }
                     break;
                 case DetectionType.FieldOfView:
                     if (is3D)
                     {
-                        DetectionVisualiserUtility.DrawFieldOfView(transform.position + detectionOffset, angle, radius, 
-                                                                   isTargetVisible, transform.eulerAngles.y - rotationOffset);
+                        float rotation = transform.eulerAngles.y - rotationOffset;
+                        DetectionVisualiserUtility.DrawFieldOfView(centre, angle, radius, isTargetVisible, rotation);
                     }
                     else
                     {
-                        DetectionVisualiserUtility.DrawFieldOfView2D(transform.position + detectionOffset, angle, radius, 
-                                                                     isTargetVisible, transform.eulerAngles.z - rotationOffset);
+                        float rotation = transform.eulerAngles.z - rotationOffset;
+                        DetectionVisualiserUtility.DrawFieldOfView2D(centre, angle, radius, isTargetVisible, rotation);
                     }
                     break;
                 case DetectionType.Bounds:
-                    DetectionVisualiserUtility.DrawBounds(transform.position + detectionOffset, size, isTargetVisible);
+                    DetectionVisualiserUtility.DrawBounds(centre, size, isTargetVisible);
                     break;
             }
         }

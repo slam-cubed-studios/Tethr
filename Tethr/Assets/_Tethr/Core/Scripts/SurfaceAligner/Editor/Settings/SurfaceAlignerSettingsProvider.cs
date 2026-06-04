@@ -20,6 +20,7 @@ namespace Tethr.SurfaceAligner
                 {
                     SerializedObject serializedObject = SurfaceAlignerSettings.GetSerializedSettings();
                     EditorGUILayout.PropertyField(serializedObject.FindProperty("physicsType"), new GUIContent("Physics Type"));
+                    EditorGUILayout.PropertyField(serializedObject.FindProperty("previewSettings"), new GUIContent("Preview Settings"));
                     EditorGUILayout.PropertyField(serializedObject.FindProperty("lineSettings"), new GUIContent("Line Settings"));
                     EditorGUILayout.PropertyField(serializedObject.FindProperty("discSettings"), new GUIContent("Disc Settings"));
                     EditorGUILayout.PropertyField(serializedObject.FindProperty("surfaceChecks"), new GUIContent("Surface Checks"));

@@ -13,12 +13,17 @@ MonoBehaviour:
   m_Name: SurfaceAlignerSettings
   m_EditorClassIdentifier: Assembly-CSharp-Editor::Tethr.SurfaceAligner.SurfaceAlignerSettings
   physicsType: 0
+  previewSettings:
+    ShowPreviews: 1
+    ShowGizmos: 1
+    Alpha: 0.75
+    PreviewColour: {r: 1, g: 0, b: 0, a: 1}
   lineSettings:
-    rayColour: {r: 0, g: 1, b: 0, a: 1}
-    normalColour: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
-    thickness: 2
-    normalLength: 1
+    RayColour: {r: 0, g: 1, b: 0, a: 1}
+    NormalColour: {r: 1, g: 0.91999984, b: 0, a: 1}
+    Thickness: 2
+    NormalLength: 1
   discSettings:
-    colour: {r: 0, g: 1, b: 0, a: 1}
-    radius: 0.075
+    Colour: {r: 0, g: 1, b: 0, a: 1}
+    Radius: 0.075
   surfaceChecks: []

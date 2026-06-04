@@ -9,6 +9,11 @@ namespace Tethr.SurfaceAligner
     /// </summary>
     public static class TransformExtensions
     {
+        private const int MAX_HITS = 10;
+
+        private static readonly RaycastHit[] hits = new RaycastHit[MAX_HITS];
+        private static readonly RaycastHit2D[] hits2D = new RaycastHit2D[MAX_HITS];
+
         /// <summary>
         /// Attempts to align the transform to the detected surface using the provided values.
         /// </summary>
@@ -38,10 +43,8 @@ namespace Tethr.SurfaceAligner
                 return true;
             }
 
-#if UNITY_EDITOR
-            Debug.LogWarning($"No viable surface found for '{transform.gameObject.name}' to align to. " +
-                             $"Try adjusting your direction, maxDistance or layerMask values or moving the object elsewhere.");
-#endif
+            Message.LogWarning($"No viable surface found for '{transform.gameObject.name}' to align to. " +
+                               $"Try adjusting your direction, maxDistance or layerMask values or moving the object elsewhere.");
 
             return false;
         }
@@ -52,8 +55,7 @@ namespace Tethr.SurfaceAligner
         /// </summary>
         /// 
         /// <remarks>
-        /// This is the 3D version of the method. For 2D physics surface hits, use
-        /// <see cref="GetSurfaceHit2D(Transform, Vector2, float, int)"/> instead.
+        /// This is the 3D version of the method. For 2D physics surface hits, use <see cref="GetSurfaceHit2D(Transform, Vector2, float, int)"/> instead.
         /// </remarks>
         /// 
         /// <returns>
@@ -62,10 +64,18 @@ namespace Tethr.SurfaceAligner
         public static RaycastHit GetSurfaceHit(this Transform transform, Vector3 direction, float maxDistance = Mathf.Infinity,
                                                int layerMask = Physics.AllLayers)
         {
-            RaycastHit[] hits = Physics.RaycastAll(transform.position, direction, maxDistance, layerMask);
-            foreach (RaycastHit hit in hits)
+            int hitCount = Physics.RaycastNonAlloc(transform.position, direction, hits, maxDistance, layerMask);
+
+            if (hitCount == MAX_HITS)
+            {
+                Message.LogWarning("Maximum hit limit reached. Some hits may not be detected. " +
+                                   "Consider increasing the MAX_HITS constant if this is a common occurrence.");
+            }
+
+            for (int i = 0; i < hitCount; i++)
             {
                 // INFO: Find the first hit that isn't the object itself or a child of the object
+                RaycastHit hit = hits[i];
                 if (!hit.transform.IsChildOf(transform))
                 {
                     return hit;
@@ -80,8 +90,7 @@ namespace Tethr.SurfaceAligner
         /// </summary>
         /// 
         /// <remarks>
-        /// This is the 2D version of the method. For 3D physics alignment, use
-        /// <see cref="AlignToSurface(Transform, Vector3, float, int, Vector3)"/> instead.
+        /// This is the 2D version of the method. For 3D physics alignment, use <see cref="AlignToSurface(Transform, Vector3, float, int, Vector3)"/> instead.
         /// </remarks>
         /// 
         /// <returns>
@@ -106,10 +115,8 @@ namespace Tethr.SurfaceAligner
                 return true;
             }
 
-#if UNITY_EDITOR
-            Debug.LogWarning($"No viable surface found for '{transform.gameObject.name}' to align to. " +
-                             $"Try adjusting your direction, maxDistance or layerMask values or moving the object elsewhere.");
-#endif
+            Message.LogWarning($"No viable surface found for '{transform.gameObject.name}' to align to. " +
+                               $"Try adjusting your direction, maxDistance or layerMask values or moving the object elsewhere.");
 
             return false;
         }
@@ -120,8 +127,7 @@ namespace Tethr.SurfaceAligner
         /// </summary>
         /// 
         /// <remarks>
-        /// This is the 2D version of the method. For 3D physics surface hits, use
-        /// <see cref="GetSurfaceHit(Transform, Vector3, float, int)"/> instead.
+        /// This is the 2D version of the method. For 3D physics surface hits, use <see cref="GetSurfaceHit(Transform, Vector3, float, int)"/> instead.
         /// </remarks>
         /// 
         /// <returns>
@@ -130,10 +136,18 @@ namespace Tethr.SurfaceAligner
         public static RaycastHit2D GetSurfaceHit2D(this Transform transform, Vector2 direction, float maxDistance = Mathf.Infinity,
                                                    int layerMask = Physics2D.AllLayers)
         {
-            RaycastHit2D[] hits = Physics2D.RaycastAll(transform.position, direction, maxDistance, layerMask);
-            foreach (RaycastHit2D hit in hits)
+            int hitCount = Physics2D.RaycastNonAlloc(transform.position, direction, hits2D, maxDistance, layerMask);
+
+            if (hitCount == MAX_HITS)
+            {
+                Message.LogWarning("Maximum hit limit reached. Some hits may not be detected. " +
+                                   "Consider increasing the MAX_HITS constant if this is a common occurrence.");
+            }
+
+            for (int i = 0; i < hitCount; i++)
             {
                 // INFO: Find the first hit that isn't the object itself or a child of the object
+                RaycastHit2D hit = hits2D[i];
                 if (!hit.transform.IsChildOf(transform))
                 {
                     return hit;
@@ -148,8 +162,7 @@ namespace Tethr.SurfaceAligner
         /// </summary>
         /// 
         /// <remarks>
-        /// This is the 3D version of the method. For 2D physics ground alignment, use
-        /// <see cref="AlignToGround2D(Transform, float, int, Vector2)"/> instead.
+        /// This is the 3D version of the method. For 2D physics ground alignment, use <see cref="AlignToGround2D(Transform, float, int, Vector2)"/> instead.
         /// </remarks>
         /// 
         /// <returns>
@@ -166,8 +179,7 @@ namespace Tethr.SurfaceAligner
         /// </summary>
         /// 
         /// <remarks>
-        /// This is the 2D version of the method. For 3D physics ground alignment, use
-        /// <see cref="AlignToGround(Transform, float, int, Vector3)"/> instead.
+        /// This is the 2D version of the method. For 3D physics ground alignment, use <see cref="AlignToGround(Transform, float, int, Vector3)"/> instead.
         /// </remarks>
         /// 
         /// <returns>

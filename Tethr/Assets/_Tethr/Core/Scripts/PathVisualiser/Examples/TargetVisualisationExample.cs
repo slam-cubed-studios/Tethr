@@ -20,7 +20,7 @@ namespace Tethr.PathVisualiser.Examples
         {
             if (target)
             {
-                PathVisualiserUtility.DrawTargetLine(transform.position, target.position);
+                PathVisualiserUtility.DrawConnection(transform.position, target.position);
             }
         }
     }

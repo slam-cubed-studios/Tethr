@@ -17,10 +17,24 @@ namespace Tethr.SurfaceAligner
     [InitializeOnLoad]
     public static class SurfaceAlignerUtility
     {
+        private struct SurfaceAlignerData
+        {
+            public SurfaceCheck surfaceCheck;
+            public List<(Component renderer, Component filter)> previewComponents;
+        }
+
+        private enum DragState
+        {
+            None,
+            Dragging,
+            Released
+        }
+
         private static SurfaceAlignerSettings settings;
-        private static List<GameObject> selectedGameObjects;
-        private static Dictionary<GameObject, SurfaceCheck> selectedSurfaceChecks;
-        private static bool isDragging = false;
+        private static Dictionary<GameObject, SurfaceAlignerData> surfaceAlignerProfiles;
+        private static List<BasePreviewer> previewers;
+        private static Material surfaceAlignerMaterial;
+        private static DragState currentDragState;
 
         private static SurfaceAlignerSettings Settings
         {
@@ -45,10 +59,15 @@ namespace Tethr.SurfaceAligner
 
         private static void Initialise()
         {
-            selectedGameObjects = new List<GameObject>(Selection.gameObjects);
-            selectedSurfaceChecks = Settings.GetSurfaceChecks(selectedGameObjects);
-            isDragging = false;
+            surfaceAlignerProfiles = new();
+            previewers = new();
+            surfaceAlignerMaterial = Resources.Load<Material>("SurfaceAlignerMaterial");
+            currentDragState = DragState.None;
 
+            RebuildSurfaceAlignerProfiles();
+            ClearScenePreviewers();
+
+            Settings.OnSettingsChanged += Reset;
             EditorApplication.playModeStateChanged -= OnPlayModeStateChanged;
             EditorApplication.playModeStateChanged += OnPlayModeStateChanged;
             Selection.selectionChanged += OnSelectionChanged;
@@ -62,15 +81,32 @@ namespace Tethr.SurfaceAligner
             Selection.selectionChanged -= OnSelectionChanged;
             EditorApplication.playModeStateChanged -= OnPlayModeStateChanged;
             EditorApplication.playModeStateChanged += OnPlayModeStateChanged;
+            Settings.OnSettingsChanged -= Reset;
             EditorApplication.delayCall -= static () =>
             {
                 Initialise();
             };
 
-            isDragging = false;
-            selectedSurfaceChecks = null;
-            selectedGameObjects = null;
+            currentDragState = DragState.None;
+            surfaceAlignerMaterial = null;
+            previewers = null;
+            surfaceAlignerProfiles = null;
             settings = null;
+        }
+
+        private static void Reset()
+        {
+            foreach (BasePreviewer previewer in previewers)
+            {
+                if (previewer != null)
+                {
+                    Object.DestroyImmediate(previewer.gameObject);
+                }
+            }
+            previewers.Clear();
+
+            surfaceAlignerProfiles.Clear();
+            RebuildSurfaceAlignerProfiles();
         }
 
         private static void OnPlayModeStateChanged(PlayModeStateChange state)
@@ -83,70 +119,94 @@ namespace Tethr.SurfaceAligner
 
         private static void OnSelectionChanged()
         {
-            UpdateSelectedGameObjects();
-        }
-
-        private static void UpdateSelectedGameObjects()
-        {
-            selectedGameObjects = new List<GameObject>(Selection.gameObjects);
-
-            // INFO: Update surface checks for new selection
-            selectedSurfaceChecks = Settings.GetSurfaceChecks(selectedGameObjects);
+            RebuildSurfaceAlignerProfiles();
         }
 
         private static void DuringSceneGUI(SceneView sceneView)
         {
-            Event currentEvent = Event.current;
-
-            if (!IsDragging(currentEvent))
+            UpdateDragState(Event.current);
+            switch (currentDragState)
             {
+                case DragState.Dragging:
+                    {
+                        DrawUtilityVisuals();
+                        break;
+                    }
+                case DragState.Released:
+                    {
+                        AlignSelectedToSurfaces();
+                        currentDragState = DragState.None;
+                        break;
+                    }
+                case DragState.None:
+                default:
+                        break;
+            }
+        }
+
+        private static void UpdateDragState(Event currentEvent)
+        {
+            if (Tools.current != Tool.Move)
+            {
+                currentDragState = DragState.None;
                 return;
             }
 
-            DrawUtilityVisuals();
-
-            if (!IsLeftMouseButtonReleased(currentEvent))
+            switch (currentDragState)
             {
-                return;
-            }
+                case DragState.None:
+                    {
+                        if (currentEvent.type == EventType.MouseDrag && currentEvent.button == (int)MouseButton.Left)
+                        {
+                            currentDragState = DragState.Dragging;
+                        }
 
-            AlignSelectedToSurfaces();
+                        break;
+                    }
+                case DragState.Dragging:
+                    {
+                        // INFO: Release if we stopped dragging or left the scene view window
+                        if ((currentEvent.type == EventType.MouseUp && currentEvent.button == (int)MouseButton.Left) ||
+                            currentEvent.type == EventType.MouseLeaveWindow)
+                        {
+                            currentDragState = DragState.Released;
+                        }
+
+                        break;
+                    }
+                case DragState.Released:
+                default:
+                    break;
+            }
         }
 
         private static void AlignSelectedToSurfaces()
         {
+            MakePreviewersAvailable();
+
             PhysicsType physicsType = Settings.GetPhysicsType();
-
-            foreach (GameObject selectedGameObject in selectedGameObjects)
+            foreach (var (gameObject, surfaceAlignerData) in surfaceAlignerProfiles)
             {
-                if (selectedGameObject == null)
+                if (gameObject == null || surfaceAlignerData.surfaceCheck == null)
                 {
                     continue;
                 }
 
-                // INFO: Get surface check for this object, if it exists
-                selectedSurfaceChecks.TryGetValue(selectedGameObject, out SurfaceCheck surfaceCheck);
-                if (surfaceCheck == null)
-                {
-                    continue;
-                }
-
-                Transform selectedTransform = selectedGameObject.transform;
-
-                Undo.RecordObject(selectedTransform, "Align To Surface");
-
+                SurfaceCheck surfaceCheck = surfaceAlignerData.surfaceCheck;
+                Transform transform = gameObject.transform;
+                Undo.RecordObject(transform, "Align To Surface");
                 switch (physicsType)
                 {
                     case PhysicsType.Physics3D:
                         {
-                            selectedTransform.AlignToSurface(surfaceCheck.direction, surfaceCheck.maxDistance,
-                                                             surfaceCheck.surfaceMask, surfaceCheck.offset);
+                            transform.AlignToSurface(surfaceCheck.Direction, surfaceCheck.MaxDistance,
+                                                     surfaceCheck.SurfaceMask, surfaceCheck.Offset);
                             break;
                         }
                     case PhysicsType.Physics2D:
                         {
-                            selectedTransform.AlignToSurface2D(surfaceCheck.direction, surfaceCheck.maxDistance,
-                                                               surfaceCheck.surfaceMask, surfaceCheck.offset);
+                            transform.AlignToSurface2D(surfaceCheck.Direction, surfaceCheck.MaxDistance,
+                                                       surfaceCheck.SurfaceMask, surfaceCheck.Offset);
                             break;
                         }
                     default:
@@ -157,44 +217,139 @@ namespace Tethr.SurfaceAligner
             Undo.SetCurrentGroupName("Align To Surface");
         }
 
-        private static void DrawUtilityVisuals()
+        private static void RebuildSurfaceAlignerProfiles()
         {
+            GameObject[] selectedGameObjects = Selection.gameObjects;
             PhysicsType physicsType = Settings.GetPhysicsType();
-
+            surfaceAlignerProfiles.Clear();
             foreach (GameObject selectedGameObject in selectedGameObjects)
             {
-                if (selectedGameObject == null)
-                {
-                    continue;
-                }
-
-                // INFO: Get surface check for this object, if it exists
-                selectedSurfaceChecks.TryGetValue(selectedGameObject, out SurfaceCheck surfaceCheck);
+                SurfaceCheck surfaceCheck = Settings.TryGetSurfaceCheck(selectedGameObject);
                 if (surfaceCheck == null)
                 {
                     continue;
                 }
 
-                Transform selectedTransform = selectedGameObject.transform;
+                var previewComponents = new List<(Component renderer, Component filter)>();
+                if (physicsType == PhysicsType.Physics2D)
+                {
+                    foreach (SpriteRenderer spriteRenderer in selectedGameObject.GetComponentsInChildren<SpriteRenderer>())
+                    {
+                        if (spriteRenderer == null || spriteRenderer.sprite == null || spriteRenderer.color.a == 0.0f)
+                        {
+                            continue;
+                        }
 
+                        previewComponents.Add((spriteRenderer, null));
+                    }
+                }
+                else if (physicsType == PhysicsType.Physics3D)
+                {
+                    foreach (MeshRenderer meshRenderer in selectedGameObject.GetComponentsInChildren<MeshRenderer>())
+                    {
+                        if (meshRenderer == null || meshRenderer.sharedMaterials.Length == 0)
+                        {
+                            continue;
+                        }
+
+                        MeshFilter meshFilter = meshRenderer.GetComponent<MeshFilter>();
+                        if (meshFilter == null || meshFilter.sharedMesh == null)
+                        {
+                            continue;
+                        }
+
+                        previewComponents.Add((meshRenderer, meshFilter));
+                    }
+                }
+
+                surfaceAlignerProfiles.Add(selectedGameObject, new SurfaceAlignerData
+                {
+                    surfaceCheck = surfaceCheck,
+                    previewComponents = previewComponents
+                });
+            }
+        }
+
+        private static void ClearScenePreviewers()
+        {
+            BasePreviewer[] existingPreviewers = Object.FindObjectsByType<BasePreviewer>(FindObjectsInactive.Include, FindObjectsSortMode.None);
+            foreach (BasePreviewer previewer in existingPreviewers)
+            {
+                if (previewer != null)
+                {
+                    Object.DestroyImmediate(previewer.gameObject);
+                }
+            }
+        }
+
+        private static BasePreviewer GetAvailablePreviewer()
+        {
+            foreach (BasePreviewer previewer in previewers)
+            {
+                if (previewer != null && !previewer.IsActive())
+                {
+                    return previewer;
+                }
+            }
+
+            PhysicsType physicsType = Settings.GetPhysicsType();
+            BasePreviewer newPreviewer = physicsType switch
+            {
+                PhysicsType.Physics3D => new GameObject(nameof(Previewer3D)).AddComponent<Previewer3D>(),
+                PhysicsType.Physics2D => new GameObject(nameof(Previewer2D)).AddComponent<Previewer2D>(),
+                _ => null,
+            };
+            previewers.Add(newPreviewer);
+
+            return newPreviewer;
+        }
+
+        private static void MakePreviewersAvailable()
+        {
+            foreach (BasePreviewer previewer in previewers)
+            {
+                if (previewer != null && previewer.IsActive())
+                {
+                    previewer.Deactivate();
+                }
+            }
+        }
+
+        private static void DrawUtilityVisuals()
+        {
+            MakePreviewersAvailable();
+            surfaceAlignerMaterial.SetColor("_BaseColor", Settings.GetPreviewSettings().AlphaAdjustedPreviewColour);
+
+            PhysicsType physicsType = Settings.GetPhysicsType();
+            foreach (var (gameObject, surfaceAlignerData) in surfaceAlignerProfiles)
+            {
+                SurfaceCheck surfaceCheck = surfaceAlignerData.surfaceCheck;
+                if (gameObject == null || surfaceCheck == null)
+                {
+                    continue;
+                }
+
+                Transform transform = gameObject.transform;
                 switch (physicsType)
                 {
                     case PhysicsType.Physics3D:
                         {
-                            RaycastHit hit = selectedTransform.GetSurfaceHit(surfaceCheck.direction, surfaceCheck.maxDistance, surfaceCheck.surfaceMask);
+                            RaycastHit hit = transform.GetSurfaceHit(surfaceCheck.Direction, surfaceCheck.MaxDistance, surfaceCheck.SurfaceMask);
                             if (hit.collider != null)
                             {
-                                DrawSurfaceHitGizmos(selectedTransform, surfaceCheck, hit.point, hit.normal);
+                                DrawSurfaceHitGizmos(transform, surfaceCheck, hit.point, hit.normal, physicsType);
+                                DrawMeshPreviews(gameObject, surfaceCheck, hit);
                             }
 
                             break;
                         }
                     case PhysicsType.Physics2D:
                         {
-                            RaycastHit2D hit = selectedTransform.GetSurfaceHit2D(surfaceCheck.direction, surfaceCheck.maxDistance, surfaceCheck.surfaceMask);
+                            RaycastHit2D hit = transform.GetSurfaceHit2D(surfaceCheck.Direction, surfaceCheck.MaxDistance, surfaceCheck.SurfaceMask);
                             if (hit.collider != null)
                             {
-                                DrawSurfaceHitGizmos(selectedTransform, surfaceCheck, hit.point, hit.normal);
+                                DrawSurfaceHitGizmos(transform, surfaceCheck, hit.point, hit.normal, physicsType);
+                                DrawSpritePreviews(gameObject, surfaceCheck, hit);
                             }
 
                             break;
@@ -205,55 +360,94 @@ namespace Tethr.SurfaceAligner
             }
         }
 
-        private static void DrawSurfaceHitGizmos(Transform transform, SurfaceCheck surfaceCheck, Vector3 hitPoint, Vector3 hitNormal)
+        private static void DrawSurfaceHitGizmos(Transform transform, SurfaceCheck surfaceCheck, Vector3 hitPoint, Vector3 hitNormal, PhysicsType physicsType)
         {
-            PhysicsType physicsType = Settings.GetPhysicsType();
+            ref readonly PreviewSettings previewSettings = ref Settings.GetPreviewSettings();
+            if (!previewSettings.ShowGizmos)
+            {
+                return;
+            }
+
             ref readonly LineSettings lineSettings = ref Settings.GetLineSettings();
             ref readonly DiscSettings discSettings = ref Settings.GetDiscSettings();
 
             // INFO: Draw ray from object to hit point
-            Handles.color = lineSettings.rayColour;
-            Handles.DrawLine(transform.position, hitPoint, lineSettings.thickness);
+            Handles.color = lineSettings.RayColour;
+            Handles.DrawLine(transform.position, hitPoint, lineSettings.Thickness);
 
             // INFO: Draw normal at hit point if it's not opposite to the ray direction
             if (hitNormal != surfaceCheck.OppositeDirection)
             {
-                Handles.color = lineSettings.normalColour;
-                Handles.DrawLine(hitPoint, hitPoint + hitNormal * lineSettings.normalLength, lineSettings.thickness);
+                Handles.color = lineSettings.NormalColour;
+                Handles.DrawLine(hitPoint, hitPoint + hitNormal * lineSettings.NormalLength, lineSettings.Thickness);
             }
 
             // INFO: Draw disc at hit point (Oriented to surface normal for 3D, flat for 2D)
-            Handles.color = discSettings.colour;
-            Handles.DrawSolidDisc(hitPoint, physicsType == PhysicsType.Physics3D ? hitNormal : Vector3.forward, discSettings.radius);
+            Handles.color = discSettings.Colour;
+            Handles.DrawSolidDisc(hitPoint, physicsType == PhysicsType.Physics3D ? hitNormal : Vector3.forward, discSettings.Radius);
         }
 
-        private static bool IsDragging(Event currentEvent)
+        private static void DrawMeshPreviews(GameObject gameObject, SurfaceCheck surfaceCheck, RaycastHit hit)
         {
-            // INFO: Only allow dragging if the current tool is Move
-            if (Tools.current != Tool.Move)
+            ref readonly PreviewSettings previewSettings = ref Settings.GetPreviewSettings();
+            if (!previewSettings.ShowPreviews || surfaceAlignerMaterial == null)
             {
-                return false;
+                return;
             }
 
-            // INFO: Start drag operation on left mouse button down
-            if (currentEvent.type == EventType.MouseDrag && currentEvent.button == (int)MouseButton.Left && !isDragging)
+            if (surfaceAlignerProfiles.TryGetValue(gameObject, out SurfaceAlignerData surfaceAlignerData))
             {
-                isDragging = true;
-            }
+                Quaternion rotation = Quaternion.FromToRotation(Vector3.up, hit.normal);
+                foreach (var (renderer, filter) in surfaceAlignerData.previewComponents)
+                {
+                    MeshRenderer meshRenderer = renderer as MeshRenderer;
+                    if (meshRenderer == null)
+                    {
+                        continue;
+                    }
 
-            return isDragging;
+                    MeshFilter meshFilter = filter as MeshFilter;
+                    if (meshFilter == null)
+                    {
+                        continue;
+                    }
+
+                    Previewer3D previewer = GetAvailablePreviewer() as Previewer3D;
+                    bool isChild = renderer.transform != gameObject.transform && renderer.transform.IsChildOf(gameObject.transform);
+                    Vector3 scaledOffset = Vector3.Scale(isChild ? renderer.transform.localPosition : Vector3.zero, gameObject.transform.localScale) + surfaceCheck.Offset;
+                    Vector3 position = hit.point + (rotation * scaledOffset);
+                    previewer.Activate(hit.normal, position, renderer.transform.lossyScale, meshFilter.sharedMesh, renderer as MeshRenderer, surfaceAlignerMaterial);
+                }
+            }
         }
 
-        private static bool IsLeftMouseButtonReleased(Event currentEvent)
+        private static void DrawSpritePreviews(GameObject gameObject, SurfaceCheck surfaceCheck, RaycastHit2D hit)
         {
-            // INFO: Check for left mouse button release to end drag operation
-            if (currentEvent.type == EventType.MouseUp && currentEvent.button == (int)MouseButton.Left)
+            ref readonly PreviewSettings previewSettings = ref Settings.GetPreviewSettings();
+            if (!previewSettings.ShowPreviews)
             {
-                isDragging = false;
-                return true;
+                return;
             }
 
-            return false;
+            Quaternion rotation = Quaternion.FromToRotation(Vector3.up, hit.normal);
+            Vector3 hitPoint = new(hit.point.x, hit.point.y, 0.0f);
+            if (surfaceAlignerProfiles.TryGetValue(gameObject, out SurfaceAlignerData surfaceAlignerData))
+            {
+                foreach (var (renderer, _) in surfaceAlignerData.previewComponents)
+                {
+                    SpriteRenderer spriteRenderer = renderer as SpriteRenderer;
+                    if (spriteRenderer == null)
+                    {
+                        continue;
+                    }
+
+                    Previewer2D previewer = GetAvailablePreviewer() as Previewer2D;
+                    bool isChild = spriteRenderer.transform != gameObject.transform && spriteRenderer.transform.IsChildOf(gameObject.transform);
+                    Vector3 scaledOffset = Vector3.Scale(isChild ? spriteRenderer.transform.localPosition : Vector3.zero, gameObject.transform.localScale) + surfaceCheck.Offset;
+                    Vector3 position = hitPoint + (rotation * scaledOffset);
+                    previewer.Activate(hit.normal, position, spriteRenderer.transform.lossyScale, previewSettings.Alpha, spriteRenderer);
+                }
+            }
         }
     }
 }

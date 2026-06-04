@@ -16,7 +16,7 @@ namespace Tethr.PathVisualiser.Examples
     /// Supports Once, Loop, and PingPong traversal types. Visualises the path and current traversal
     /// state in the editor. Intended for use as an example or reference implementation.
     /// </remarks>
-    [ExecuteInEditMode]
+    [ExecuteAlways]
     public class PathVisualisationExample : MonoBehaviour
     {
         [SerializeField] private PathTraversalType traversalType = PathTraversalType.Once;
@@ -52,6 +52,11 @@ namespace Tethr.PathVisualiser.Examples
 
         private void Update()
         {
+            if (path == null || path.Count < 2)
+            {
+                return;
+            }
+
             timer += Time.deltaTime;
 
             if (timer >= delayTime)
@@ -90,7 +95,7 @@ namespace Tethr.PathVisualiser.Examples
 
         private void LinearLogic()
         {
-            if (nextPointIndex < 4)
+            if (nextPointIndex < path.Count - 1)
             {
                 currentPointIndex++;
                 nextPointIndex++;
@@ -98,8 +103,8 @@ namespace Tethr.PathVisualiser.Examples
             else if (!hasFinishedLinearTraversal)
             {
                 hasFinishedLinearTraversal = true;
-                currentPointIndex = 4;
-                nextPointIndex = 4;
+                currentPointIndex = path.Count - 1;
+                nextPointIndex = path.Count - 1;
             }
         }
 
@@ -107,12 +112,12 @@ namespace Tethr.PathVisualiser.Examples
         {
             currentPointIndex++;
             nextPointIndex++;
-            if (nextPointIndex > 4)
+            if (nextPointIndex == path.Count)
             {
                 nextPointIndex = 0;
             }
 
-            if (currentPointIndex > 4)
+            if (currentPointIndex == path.Count)
             {
                 currentPointIndex = 0;
             }
@@ -138,10 +143,10 @@ namespace Tethr.PathVisualiser.Examples
                 currentPointIndex++;
                 nextPointIndex++;
 
-                if (nextPointIndex > 4)
+                if (nextPointIndex == path.Count)
                 {
-                    nextPointIndex = 3;
-                    currentPointIndex = 4;
+                    currentPointIndex = path.Count - 1;
+                    nextPointIndex = currentPointIndex - 1;
                     isReversing = true;
                 }
             }
@@ -149,7 +154,10 @@ namespace Tethr.PathVisualiser.Examples
 
         private void OnDrawGizmosSelected()
         {
-            PathVisualiserUtility.DrawPath(path.ToArray(), traversalType, currentPointIndex, nextPointIndex);
+            if (path != null && path.Count >= 2)
+            {
+                PathVisualiserUtility.DrawPath(path, traversalType, currentPointIndex, nextPointIndex);
+            }
         }
     }
 }

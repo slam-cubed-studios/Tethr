@@ -18,6 +18,37 @@ namespace Tethr.SurfaceAligner
     }
 
     /// <summary>
+    /// Represents configuration settings for rendering preview visuals when performing surface checks for alignment in the
+    /// in the Unity Editor.
+    /// </summary>
+    [Serializable]
+    public struct PreviewSettings
+    {
+        [Tooltip("Whether to show preview visuals in the Scene view when performing surface checks for alignment.")]
+        public bool ShowPreviews;
+
+        [Tooltip("Whether to show gizmos in the Scene view when performing surface checks for alignment.")]
+        public bool ShowGizmos;
+
+        [Tooltip("Alpha transparency of the preview visuals when performing surface checks for alignment.")]
+        [Range(0.0f, 1.0f)] public float Alpha;
+
+        [Tooltip("Colour of the preview visuals when performing surface checks for alignment. Only used for 3D object visualisation.")]
+        public Color PreviewColour;
+
+        public readonly Color AlphaAdjustedPreviewColour => new(PreviewColour.r, PreviewColour.g, PreviewColour.b, Alpha);
+
+        public static PreviewSettings Default => new()
+        {
+            ShowPreviews = true,
+            ShowGizmos = true,
+            Alpha = 0.75f,
+            PreviewColour = Color.red
+        };
+    }
+
+
+    /// <summary>
     /// Represents configuration settings for rendering raycast and normal lines when performing surface checks for 
     /// alignment in the Unity Editor.
     /// </summary>
@@ -25,34 +56,24 @@ namespace Tethr.SurfaceAligner
     public struct LineSettings
     {
         [Tooltip("Colour of the raycast line from the object to the ray's hit point.")]
-        public Color rayColour;
+        public Color RayColour;
 
         [Tooltip("Colour of the normal line at the ray's hit point.")]
-        public Color normalColour;
+        public Color NormalColour;
 
         [Tooltip("Thickness of the lines.")]
-        [Min(0.0f)] public float thickness;
+        [Min(0.0f)] public float Thickness;
 
         [Tooltip("Length of the normal line.")]
-        [Min(0.0f)] public float normalLength;
+        [Min(0.0f)] public float NormalLength;
 
-        public LineSettings(bool useDefaults)
+        public static LineSettings Default => new()
         {
-            if (useDefaults)
-            {
-                rayColour = Color.green;
-                normalColour = Color.yellow;
-                thickness = 2.0f;
-                normalLength = 1.0f;
-            }
-            else
-            {
-                rayColour = default;
-                normalColour = default;
-                thickness = default;
-                normalLength = default;
-            }
-        }
+            RayColour = Color.green,
+            NormalColour = Color.yellow,
+            Thickness = 2.0f,
+            NormalLength = 1.0f
+        };
     }
 
     /// <summary>
@@ -63,24 +84,16 @@ namespace Tethr.SurfaceAligner
     public struct DiscSettings
     {
         [Tooltip("Colour of the disc drawn at the hit point.")]
-        public Color colour;
+        public Color Colour;
 
         [Tooltip("Radius of the disc drawn at the hit point.")]
-        [Min(0.0f)] public float radius;
+        [Min(0.0f)] public float Radius;
 
-        public DiscSettings(bool useDefaults)
+        public static DiscSettings Default => new()
         {
-            if (useDefaults)
-            {
-                colour = Color.green;
-                radius = 0.075f;
-            }
-            else
-            {
-                colour = default;
-                radius = default;
-            }
-        }
+            Colour = Color.green,
+            Radius = 0.075f
+        };
     }
 
     /// <summary>
@@ -97,35 +110,35 @@ namespace Tethr.SurfaceAligner
     {
         [Tooltip("Prefab to which this surface check configuration applies. The surface check will be performed when " +
                  "aligning objects instantiated from this prefab.")]
-        public GameObject prefab = null;
+        public GameObject Prefab = null;
 
         [Tooltip("Direction in which to perform the raycast for the surface check. Auto-normalized during assignment.")]
-        public Vector3 direction = Vector3.down;
+        public Vector3 Direction = Vector3.down;
 
-        [Tooltip("Maximum distance for the raycast when performing the surface check. Must be greater than 0.")]
-        public float maxDistance = Mathf.Infinity;
+        [Tooltip("Maximum distance for the raycast when performing the surface check.")]
+        public float MaxDistance = Mathf.Infinity;
 
         [Tooltip("Surface mask specifies which layers should be considered when performing the raycast for the surface check.")]
-        public LayerMask surfaceMask = 0;
+        public LayerMask SurfaceMask = ~0;
 
         [Tooltip("Offset applied to object after it has been aligned to the surface. Typically used when visuals don't " +
                  "match surface alignment.")]
-        public Vector3 offset = Vector3.zero;
+        public Vector3 Offset = Vector3.zero;
 
-        public Vector3 OppositeDirection => -direction;
+        public Vector3 OppositeDirection => -Direction;
 
         public void OnAfterDeserialize()
         {
             // INFO: Ensure direction is always normalized
-            if (direction != Vector3.zero)
+            if (Direction != Vector3.zero)
             {
-                direction = direction.normalized;
+                Direction = Direction.normalized;
             }
 
             // INFO: Ensure maxDistance is never below or equal to 0
-            if (maxDistance <= 0.0f)
+            if (MaxDistance <= 0.0f)
             {
-                maxDistance = Mathf.Infinity;
+                MaxDistance = Mathf.Infinity;
             }
         }
 
@@ -149,19 +162,36 @@ namespace Tethr.SurfaceAligner
 
         [Header("General Settings")]
         [SerializeField] private PhysicsType physicsType = PhysicsType.Physics3D;
-        [SerializeField] private LineSettings lineSettings = new(true);
-        [SerializeField] private DiscSettings discSettings = new(true);
+        [SerializeField] private PreviewSettings previewSettings = PreviewSettings.Default;
+        [SerializeField] private LineSettings lineSettings = LineSettings.Default;
+        [SerializeField] private DiscSettings discSettings = DiscSettings.Default;
 
         [Space(10.0f)]
-        
+
         [Header("Surface Check Settings")]
         [SerializeField] private List<SurfaceCheck> surfaceChecks = new();
+
+        public Action OnSettingsChanged;
 
         private readonly Dictionary<GameObject, SurfaceCheck> surfaceChecksDictionary = new();
 
         private void OnValidate()
         {
+            // INFO: Ensure at least gizmos are always shown if previews are disabled
+            if (!previewSettings.ShowPreviews && !previewSettings.ShowGizmos)
+            {
+                previewSettings.ShowGizmos = true;
+            }
+
+            EditorApplication.delayCall -= ExecuteSettingsChanged;
+            EditorApplication.delayCall += ExecuteSettingsChanged;
+
             RebuildSurfaceChecksDictionary();
+        }
+
+        private void OnDestroy()
+        {
+            EditorApplication.delayCall -= ExecuteSettingsChanged;
         }
 
         public static SurfaceAlignerSettings GetOrCreateSettings()
@@ -176,26 +206,6 @@ namespace Tethr.SurfaceAligner
             }
 
             return settings;
-        }
-
-        public Dictionary<GameObject, SurfaceCheck> GetSurfaceChecks(List<GameObject> gameObjects)
-        {
-            Dictionary<GameObject, SurfaceCheck> checksForGameObjects = new();
-            foreach (GameObject gameObject in gameObjects)
-            {
-                if (gameObject == null)
-                {
-                    continue;
-                }
-
-                SurfaceCheck surfaceCheck = TryGetSurfaceCheck(gameObject);
-                if (surfaceCheck != null)
-                {
-                    checksForGameObjects.TryAdd(gameObject, surfaceCheck);
-                }
-            }
-
-            return checksForGameObjects;
         }
 
         public SurfaceCheck TryGetSurfaceCheck(GameObject gameObject)
@@ -216,6 +226,8 @@ namespace Tethr.SurfaceAligner
 
         public PhysicsType GetPhysicsType() => physicsType;
 
+        public ref readonly PreviewSettings GetPreviewSettings() => ref previewSettings;
+
         public ref readonly LineSettings GetLineSettings() => ref lineSettings;
 
         public ref readonly DiscSettings GetDiscSettings() => ref discSettings;
@@ -225,11 +237,17 @@ namespace Tethr.SurfaceAligner
             surfaceChecksDictionary.Clear();
             foreach (SurfaceCheck surfaceCheck in surfaceChecks)
             {
-                if (surfaceCheck.prefab != null)
+                if (surfaceCheck.Prefab != null)
                 {
-                    surfaceChecksDictionary.TryAdd(surfaceCheck.prefab, surfaceCheck);
+                    surfaceChecksDictionary.TryAdd(surfaceCheck.Prefab, surfaceCheck);
                 }
             }
+        }
+
+
+        private void ExecuteSettingsChanged()
+        {
+            OnSettingsChanged?.Invoke();
         }
 
         private static void TryCreateDirectory()

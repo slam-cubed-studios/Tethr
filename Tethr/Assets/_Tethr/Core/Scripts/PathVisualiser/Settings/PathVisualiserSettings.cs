@@ -15,29 +15,20 @@ namespace Tethr.PathVisualiser
     public struct LineSettings
     {
         [Tooltip("Colour of path lines that are currently not being traversed.")]
-        public Color defaultColour;
+        public Color DefaultColour;
 
         [Tooltip("Colour of the path line that is currently being traversed.")]
-        public Color activeColour;
+        public Color ActiveColour;
 
         [Tooltip("Thickness of the path lines.")]
-        [Min(0.0f)] public float thickness;
+        [Min(0.0f)] public float Thickness;
 
-        public LineSettings(bool useDefaults)
+        public static LineSettings Default => new()
         {
-            if (useDefaults)
-            {
-                defaultColour = Color.red;
-                activeColour = Color.green;
-                thickness = 15.0f;
-            }
-            else
-            {
-                defaultColour = default;
-                activeColour = default;
-                thickness = default;
-            }
-        }
+            DefaultColour = Color.red,
+            ActiveColour = Color.green,
+            Thickness = 15.0f
+        };
     }
 
     /// <summary>
@@ -47,24 +38,16 @@ namespace Tethr.PathVisualiser
     public struct DiscSettings
     {
         [Tooltip("Colour of the discs at path points.")]
-        public Color colour;
+        public Color Colour;
 
         [Tooltip("Radius of the discs at path points.")]
-        [Min(0.0f)] public float radius;
+        [Min(0.0f)] public float Radius;
 
-        public DiscSettings(bool useDefaults)
+        public static DiscSettings Default => new()
         {
-            if (useDefaults)
-            {
-                colour = Color.white;
-                radius = 0.5f;
-            }
-            else
-            {
-                colour = default;
-                radius = default;
-            }
-        }
+            Colour = Color.white,
+            Radius = 0.5f
+        };
     }
 
     /// <summary>
@@ -74,24 +57,16 @@ namespace Tethr.PathVisualiser
     public struct LabelSettings
     {
         [Tooltip("Colour of the label texts at path points.")]
-        public Color textColour;
+        public Color TextColour;
 
         [Tooltip("Font size of the labels at path points.")]
-        [Min(0)] public int fontSize;
+        [Min(0)] public int FontSize;
 
-        public LabelSettings(bool useDefaults)
+        public static LabelSettings Default => new()
         {
-            if (useDefaults)
-            {
-                textColour = Color.black;
-                fontSize = 64;
-            }
-            else
-            {
-                textColour = default;
-                fontSize = default;
-            }
-        }
+            TextColour = Color.black,
+            FontSize = 64
+        };
     }
 
     /// <summary>
@@ -106,9 +81,9 @@ namespace Tethr.PathVisualiser
     public class PathVisualiserSettings : ScriptableSingleton<PathVisualiserSettings>
     {
         [Header("General Settings")]
-        [SerializeField] private LineSettings lineSettings = new(true);
-        [SerializeField] private DiscSettings discSettings = new(true);
-        [SerializeField] private LabelSettings labelSettings = new(true);
+        [SerializeField] private LineSettings lineSettings = LineSettings.Default;
+        [SerializeField] private DiscSettings discSettings = DiscSettings.Default;
+        [SerializeField] private LabelSettings labelSettings = LabelSettings.Default;
 
         public ref readonly LineSettings GetLineSettings() => ref lineSettings;
 

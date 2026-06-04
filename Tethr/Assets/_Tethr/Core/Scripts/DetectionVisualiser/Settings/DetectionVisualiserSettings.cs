@@ -15,34 +15,24 @@ namespace Tethr.DetectionVisualiser
     public struct DetectionSettings
     {
         [Tooltip("Colour of the visualisation when an object is not detected.")]
-        public Color defaultColour;
+        public Color DefaultColour;
 
         [Tooltip("Colour of the visualisation when an object is detected.")]
-        public Color activeColour;
+        public Color ActiveColour;
 
         [Tooltip("Alpha transparency of the inner fill of the visualisation.")]
-        [Range(0.0f, 1.0f)] public float alpha;
+        [Range(0.0f, 1.0f)] public float Alpha;
 
         [Tooltip("Thickness of the visualisation lines.")]
-        [Min(0.0f)] public float thickness;
+        [Min(0.0f)] public float Thickness;
 
-        public DetectionSettings(bool useDefaults)
+        public static DetectionSettings Default => new()
         {
-            if (useDefaults)
-            {
-                defaultColour = Color.white;
-                activeColour = Color.green;
-                alpha = 0.1f;
-                thickness = 2.5f;
-            }
-            else
-            {
-                defaultColour = default;
-                activeColour = default;
-                alpha = default;
-                thickness = default;
-            }
-        }
+            DefaultColour = Color.white,
+            ActiveColour = Color.green,
+            Alpha = 0.1f,
+            Thickness = 2.5f
+        };
     }
 
     /// <summary>
@@ -56,9 +46,9 @@ namespace Tethr.DetectionVisualiser
     public class DetectionVisualiserSettings : ScriptableSingleton<DetectionVisualiserSettings>
     {
         [Header("General Settings")]
-        [SerializeField] private DetectionSettings detectionSettings = new(true);
+        [SerializeField] private DetectionSettings detectionSettings = DetectionSettings.Default;
 
-        public ref readonly DetectionSettings DetectionSettings() => ref detectionSettings;
+        public ref readonly DetectionSettings GetDetectionSettings() => ref detectionSettings;
 
         internal static void Save() => instance.Save(true);
 
