@@ -22,6 +22,7 @@ namespace Tethr.PathVisualiser
     {
         private static PathVisualiserSettings settings;
         private static GUIStyle labelStyle;
+
         private const float MAX_WORLD_SCALE_MULTIPLIER = 2.5f;
         private const int LINE_DRAW_REPETITIONS = 3;
 

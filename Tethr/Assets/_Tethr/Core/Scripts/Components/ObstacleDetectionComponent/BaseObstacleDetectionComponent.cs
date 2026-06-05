@@ -104,7 +104,7 @@ namespace Tethr
         [Tooltip("Allows you to specify an offset from the object's position for ledge detection calculations.")]
         [Min(0.0f)] public float Offset;
 
-        public static LedgeDetectionData Default => new LedgeDetectionData
+        public static LedgeDetectionData Default => new()
         {
             GroundMask = ~0,
             Distance = 1.0f,
