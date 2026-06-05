@@ -36,22 +36,12 @@ public class MainMenu : MonoBehaviour
             //Store the original position of the grapple hook to use as a reference for returning it
             originalHookPosition = GrappleHook.transform.GetChild(0).gameObject.transform.position;
 
-            //Vector3 velocity = Vector3.zero;
-
             //Move the grapple hook towards the clicked position at a speed determined by GrappleHookSpeed, but only if it's not already at that position
             if (GrappleHook.transform.GetChild(0).gameObject.transform.position != clickedPosition)
             {
                 StartCoroutine(MoveGrappleHook(GrappleHook.transform.GetChild(0).gameObject.transform.position, clickedPosition));
                 isHookOut = true;
             }
-
-            if (GrappleHook.transform.GetChild(0).gameObject.transform.position == clickedPosition)// && it hit a button -> do button functionality here
-            {
-                //GrappleHook.transform.GetChild(0).gameObject.transform.position = Vector3.MoveTowards(clickedPosition, originalHookPosition, GrappleHookSpeed * Time.deltaTime);
-            }
-
-            //Debug.Log((clickedPosition , currentHookPosition));
-
         }
         else if(Mouse.current.rightButton.wasPressedThisFrame && isMenuOpen)
         {
@@ -63,6 +53,7 @@ public class MainMenu : MonoBehaviour
             }
         }
 
+        //Hook Rotation
         if(!isHookOut && isMenuOpen)
         {
             GrappleHook.transform.rotation = Quaternion.LookRotation(Vector3.forward, mousePosition - GrappleHook.transform.position);
@@ -101,6 +92,5 @@ public class MainMenu : MonoBehaviour
     {
         levelSelectWindow.SetActive(true);
         isMenuOpen = false;
-        //gameObject.GetComponent<MainMenu>().enabled = false;
     }
 }
