@@ -27,7 +27,7 @@ namespace Tethr.PathVisualiser
         {
             DefaultColour = Color.red,
             ActiveColour = Color.green,
-            Thickness = 15.0f
+            Thickness = 10.0f
         };
     }
 
