@@ -4,15 +4,20 @@ using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
 using static UnityEngine.UI.Image;
 using System.Collections.Generic;
+using UnityEditor;
 
+[RequireComponent(typeof(Rigidbody2D))]
+[RequireComponent(typeof(DistanceJoint2D))]
 public class Grapple : MonoBehaviour
 {
+    [SerializeField] private bool isPlayer;
     [SerializeField] private float grappleStrength = 1f;
     [SerializeField] private float minDistanceBetweenPoints = 0.1f;
     [SerializeField] private GameObject ropeObject;
     [SerializeField] private int autoAimTraceCount = 1;
     [SerializeField] private float autoAimRadius = 20f;
     [SerializeField] private float autoAimRange = 100f;
+    [SerializeField] private float nonPlayerRopeDistance = 50f;
     private int ignoreLayers;
     private DistanceJoint2D distanceJoint;
     private Vector2 anchorPoint;
@@ -30,13 +35,36 @@ public class Grapple : MonoBehaviour
 
     private void Start()
     {
+        if (!ropeObject.scene.IsValid()) //check if object is in scene
+        {
+            ropeObject = Instantiate(ropeObject, transform);
+        }
         int layerToIgnore = LayerMask.NameToLayer("Player");
         ignoreLayers = ~(1 << layerToIgnore);
+
+        if (!isPlayer)
+        {
+            ropeTotalDistance = nonPlayerRopeDistance;
+            FireRope(transform.position);
+            playerRigidbody.AddForce(new Vector2(Random.Range(-1f, 1f), Random.Range(-1f, 1f)) * 5000f);
+        }
     }
 
     private void Update()
     {
-        PlayerInput();
+        if (isPlayer)
+        {
+            PlayerInput();
+        }
+        else
+        {
+            ropeObject.SetActive(true);
+            distanceJoint.enabled = true;
+
+            MoveRope();
+            DetectRopeSegmentCollision();
+        }
+        
     }
 
     private void PlayerInput()
