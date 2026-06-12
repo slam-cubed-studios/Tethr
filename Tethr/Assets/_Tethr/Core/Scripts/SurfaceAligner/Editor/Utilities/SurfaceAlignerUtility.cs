@@ -32,7 +32,7 @@ namespace Tethr.SurfaceAligner
 
         private static SurfaceAlignerSettings settings;
         private static Dictionary<GameObject, SurfaceAlignerData> surfaceAlignerProfiles;
-        private static List<BasePreviewer> previewers;
+        private static Queue<BasePreviewer> previewers;
         private static Material surfaceAlignerMaterial;
         private static DragState currentDragState;
 
@@ -65,7 +65,6 @@ namespace Tethr.SurfaceAligner
             currentDragState = DragState.None;
 
             RebuildSurfaceAlignerProfiles();
-            ClearScenePreviewers();
 
             Settings.OnSettingsChanged += Reset;
             EditorApplication.playModeStateChanged -= OnPlayModeStateChanged;
@@ -270,22 +269,15 @@ namespace Tethr.SurfaceAligner
             }
         }
 
-        private static void ClearScenePreviewers()
-        {
-            BasePreviewer[] existingPreviewers = Object.FindObjectsByType<BasePreviewer>(FindObjectsInactive.Include, FindObjectsSortMode.None);
-            foreach (BasePreviewer previewer in existingPreviewers)
-            {
-                if (previewer != null)
-                {
-                    Object.DestroyImmediate(previewer.gameObject);
-                }
-            }
-        }
-
         private static BasePreviewer GetAvailablePreviewer()
         {
-            foreach (BasePreviewer previewer in previewers)
+            int checkedCount = 0;
+            while (checkedCount < previewers.Count)
             {
+                BasePreviewer previewer = previewers.Dequeue();
+                previewers.Enqueue(previewer);
+                checkedCount++;
+
                 if (previewer != null && !previewer.IsActive())
                 {
                     return previewer;
@@ -299,7 +291,7 @@ namespace Tethr.SurfaceAligner
                 PhysicsType.Physics2D => new GameObject(nameof(Previewer2D)).AddComponent<Previewer2D>(),
                 _ => null,
             };
-            previewers.Add(newPreviewer);
+            previewers.Enqueue(newPreviewer);
 
             return newPreviewer;
         }

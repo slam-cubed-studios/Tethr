@@ -61,12 +61,12 @@ namespace Tethr
 
             Vector3 position = transform.position + transform.TransformDirection(spatialData.DetectionOffset);
             int targetCount = spatialData.DetectionType switch
-             {
+            {
                  DetectionType.Range => Physics.OverlapSphereNonAlloc(position, spatialData.Radius, colliders, spatialData.DetectionMask),
                  DetectionType.FieldOfView => Physics.OverlapSphereNonAlloc(position, spatialData.Radius, colliders, spatialData.DetectionMask),
                  DetectionType.Bounds => Physics.OverlapBoxNonAlloc(position, spatialData.BoundsSize / 2.0f, colliders, Quaternion.identity, spatialData.DetectionMask),
                  _ => 0
-             };
+            };
 
             if (targetCount == MAX_TARGETS)
             {
